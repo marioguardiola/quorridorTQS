@@ -3,7 +3,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class testPlayer {
-
   // Constructor
   @Test
   void testPlayer() {
@@ -86,16 +85,28 @@ public class testPlayer {
   }
 
   @Test
+  void testUseWalls(){
+    // Assert boundary values 0, 10
+    Player p1 = new Player("Irene", 1,10,0,0,8);
+    p1.useWall();
+    assertEquals(9,p1.getWalls());
+
+    Player p2 = new Player("Irene", 2, 0, 0, 0, 8);
+    assertThrows(IllegalStateException.class, () -> p2.useWall(), "No walls");
+
+  }
+
+  @Test
   void testHasWalls(){
     // Assert boundary values 0, 10
     Player p1 = new Player("Irene", 1, 10, 0, 0, 8);
-    // assertTrue(p1.hasWalls()); // Fallará hasta implementar
+    assertTrue(p1.hasWalls());
 
     Player p2 = new Player("Irene", 2, 0, 0, 0, 8);
-    // assertFalse(p2.hasWalls()); // Fallará hasta implementar
+    assertFalse(p2.hasWalls());
 
     Player p3 = new Player("Irene", 3, 5, 0, 0, 8);
-    // assertTrue(p3.hasWalls()); // Fallará hasta implementar
+    assertTrue(p3.hasWalls());
 
     // Assert limit values
     assertThrows(IllegalArgumentException.class, () ->
@@ -106,22 +117,25 @@ public class testPlayer {
     );
   }
 
-  @Test
-  void testHasReachedGoals(){
-    Player p1 = new Player("Irene", 1, 10, 0, 0, 8);
+  @Test void testHasReachedGoals() {
+    // Player 1 (starts at 0,0)
+    Player p1 = new Player("Irene", 1, 10, 0, 7, 8);
     assertFalse(p1.hasReachedGoal());
 
-    /* TODO: Aqui hay una confusion, como determinamos de donde sale cada uno para determinar el goalX
-        Es decir si (0,0) -> goal = 8 || (8,8) -> goal = 0 */
-    Player p2 = new Player("Irene", 2, 3, 8,3,8);
-    assertTrue(p2.hasReachedGoal());
+    p1.setPosition(8, 2);
+    assertTrue(p1.hasReachedGoal());
 
-    Player p3 = new Player("Irene", 3, 3, 0,3,0);
+    // Player 2 (starts at 8,8)
+    Player p2 = new Player("Irene", 2, 10, 8, 4, 0);
+    assertFalse(p2.hasReachedGoal());
+
+    p2.setPosition(0, 5);
     assertTrue(p2.hasReachedGoal());
 
     // Assert limit values
-    assertThrows(IllegalArgumentException.class, () -> new Player("Irene", 1, 10, 0, 4, 9));
-    assertThrows(IllegalArgumentException.class, () -> new Player("Irene", 1, 10, 0, 4, -1));
-  }
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player("Irene", 1, 10, 0, 4, 9));
+    assertThrows(IllegalArgumentException.class, () ->
+        new Player("Irene", 1, 10, 0, 4, -1)); }
 
 }
