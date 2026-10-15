@@ -1,4 +1,4 @@
-# Quoridor - Testing&Quality (2026-2027)
+# Quorridor - Testing&Quality (2026-2027)
 
 ##  Authors
 Irene López - 1661436
@@ -8,14 +8,14 @@ Mario Guardiola Jiménez - 1705769
 Olivier Penacchio 
 
 ## Tools
-* Lenguage: Java
+* Language: Java
 * Extension: Test Runner for Java (JUnit)
 * Testing: JUnit
-* Control Version: GitHUB : https://github.com/marioguardiola/quorridorTQS.git
+* Version Control: GitHub : https://github.com/marioguardiola/quorridorTQS.git
 
 ## Architecture
 MVC - Model View Controller
-* Model: Quorridor sistem (Board, Players, Wall, Pawn, Validation rules). 
+* Model: Quorridor system (Board, Players, Wall, Pawn, Validation rules). 
 * Controller: Quorridor logic between user actions and environment and update board. 
 * View: User Interface
 
