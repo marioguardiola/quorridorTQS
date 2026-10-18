@@ -2,6 +2,8 @@ package quorridor.model;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 public class WallTest {
 
@@ -42,5 +44,12 @@ public class WallTest {
 
     // Partición inválida: orientación nula
     assertThrows(IllegalArgumentException.class, () -> new Wall(3, 3, null));
+  }
+
+  // Data-driven: los casos (particiones y valores límite) se leen de wall_anchors.csv
+  @ParameterizedTest(name = "{3}")
+  @CsvFileSource(resources = "/wall_anchors.csv", numLinesToSkip = 1)
+  void testIsValidAnchor(int positionY, int positionX, boolean expected, String caso) {
+    assertEquals(expected, Wall.isValidAnchor(positionY, positionX));
   }
 }
