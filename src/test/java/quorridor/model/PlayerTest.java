@@ -2,7 +2,7 @@ package quorridor.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class testPlayer {
+public class PlayerTest {
   // Constructor
   @Test
   void testPlayer() {
