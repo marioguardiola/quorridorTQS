@@ -162,4 +162,83 @@ public class BoardTest {
     assertThrows(IllegalArgumentException.class, () -> board.isBlocked(0, 0, -1, 0));
     assertThrows(IllegalArgumentException.class, () -> board.isBlocked(8, 4, 9, 4));
   }
+
+  // ---------- isOverlapping + addWall v2: muros que se solapan ----------
+
+  @Test
+  void testIsOverlappingEmptyBoard() {
+    // Valor límite (lista buida): en un tablero vacío ningún muro se solapa
+    Board board = new Board();
+    assertFalse(board.isOverlapping(new Wall(2, 3, Orientation.HORIZONTAL)));
+  }
+
+  @Test
+  void testIsOverlappingSameAnchor() {
+    Board board = new Board();
+    board.addWall(new Wall(2, 3, Orientation.HORIZONTAL));
+
+    // Partición: mismo sitio y misma orientación -> se solapan
+    assertTrue(board.isOverlapping(new Wall(2, 3, Orientation.HORIZONTAL)));
+
+    // Partición: mismo sitio y orientación distinta -> se cruzan en forma de "+"
+    assertTrue(board.isOverlapping(new Wall(2, 3, Orientation.VERTICAL)));
+  }
+
+  @Test
+  void testIsOverlappingHorizontalShift() {
+    // Muro H en (2,3) cubre las columnas 3 y 4
+    Board board = new Board();
+    board.addWall(new Wall(2, 3, Orientation.HORIZONTAL));
+
+    // Valor límite: desplazado 1 columna a la derecha (cubre 4 y 5) -> comparten la 4
+    assertTrue(board.isOverlapping(new Wall(2, 4, Orientation.HORIZONTAL)));
+
+    // Valor límite: desplazado 1 columna a la izquierda (cubre 2 y 3) -> comparten la 3
+    assertTrue(board.isOverlapping(new Wall(2, 2, Orientation.HORIZONTAL)));
+
+    // Valor frontera: desplazado 2 columnas -> se tocan por la punta, no se solapan
+    assertFalse(board.isOverlapping(new Wall(2, 5, Orientation.HORIZONTAL)));
+    assertFalse(board.isOverlapping(new Wall(2, 1, Orientation.HORIZONTAL)));
+
+    // Partición: misma columna pero otra ranura (fila 3) -> paralelos, no se solapan
+    assertFalse(board.isOverlapping(new Wall(3, 3, Orientation.HORIZONTAL)));
+  }
+
+  @Test
+  void testIsOverlappingVerticalShift() {
+    // Muro V en (2,3) cubre las filas 2 y 3
+    Board board = new Board();
+    board.addWall(new Wall(2, 3, Orientation.VERTICAL));
+
+    // Valor límite: desplazado 1 fila abajo / arriba -> se solapan
+    assertTrue(board.isOverlapping(new Wall(3, 3, Orientation.VERTICAL)));
+    assertTrue(board.isOverlapping(new Wall(1, 3, Orientation.VERTICAL)));
+
+    // Valor frontera: desplazado 2 filas -> se tocan por la punta, no se solapan
+    assertFalse(board.isOverlapping(new Wall(4, 3, Orientation.VERTICAL)));
+    assertFalse(board.isOverlapping(new Wall(0, 3, Orientation.VERTICAL)));
+
+    // Partición: misma fila pero otra ranura (columna 4) -> paralelos, no se solapan
+    assertFalse(board.isOverlapping(new Wall(2, 4, Orientation.VERTICAL)));
+  }
+
+  @Test
+  void testIsOverlappingTJunction() {
+    // Partición: un muro V que toca el extremo de un muro H (forma de "T") está permitido
+    Board board = new Board();
+    board.addWall(new Wall(2, 3, Orientation.HORIZONTAL));
+    assertFalse(board.isOverlapping(new Wall(2, 4, Orientation.VERTICAL)));
+  }
+
+  @Test
+  void testAddWallOverlapping() {
+    // Partición inválida: no se puede añadir un muro que se solapa (precondición)
+    Board board = new Board();
+    board.addWall(new Wall(2, 3, Orientation.HORIZONTAL));
+    assertThrows(IllegalArgumentException.class,
+        () -> board.addWall(new Wall(2, 4, Orientation.HORIZONTAL)));
+
+    // El muro rechazado no se ha añadido
+    assertEquals(1, board.getWallCount());
+  }
 }
