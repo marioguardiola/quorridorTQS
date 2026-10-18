@@ -45,7 +45,7 @@ class MoveValidationTest {
   @Test
   void testIsValidMove_InvalidDistance() {
     Position from = new Position(2, 2);
-    Position to = new Position(2, 4); // Salto de 2 casillas (inválido)
+    Position to = new Position(2, 4);
 
     assertFalse(validator.isValidMove(from, to));
 
