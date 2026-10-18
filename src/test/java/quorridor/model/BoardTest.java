@@ -241,4 +241,29 @@ public class BoardTest {
     // El muro rechazado no se ha añadido
     assertEquals(1, board.getWallCount());
   }
+
+  // ---------- Caja blanca: tests añadidos tras analizar la cobertura con JaCoCo ----------
+
+  @Test
+  void testIsBlockedWhiteBoxConditions() {
+    Board board = new Board();
+
+    // Condition coverage (isInside): X fuera del tablero por la izquierda (-1)
+    assertThrows(IllegalArgumentException.class, () -> board.isBlocked(4, 0, 4, -1));
+
+    // Condition coverage (isInside): X fuera del tablero por la derecha (9)
+    assertThrows(IllegalArgumentException.class, () -> board.isBlocked(4, 8, 4, 9));
+
+    // Decision coverage: la casilla de ORIGEN fuera del tablero (primera condición del ||)
+    assertThrows(IllegalArgumentException.class, () -> board.isBlocked(-1, 4, 0, 4));
+  }
+
+  @Test
+  void testIsOverlappingNewHorizontalVsExistingVertical() {
+    // Condition coverage: muro nuevo H frente a muro existente V en otra posición
+    // (forma de "T") -> no se solapan
+    Board board = new Board();
+    board.addWall(new Wall(2, 3, Orientation.VERTICAL));
+    assertFalse(board.isOverlapping(new Wall(2, 4, Orientation.HORIZONTAL)));
+  }
 }
