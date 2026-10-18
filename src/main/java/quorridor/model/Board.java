@@ -46,8 +46,22 @@ public class Board {
   }
 
   // Returns true if a wall blocks moving from (fromY, fromX) to the adjacent cell (toY, toX)
+  // Returns true if a wall blocks moving from (fromY, fromX) to the adjacent cell (toY, toX)
+  // v1: only vertical moves (up/down), which are blocked by HORIZONTAL walls
   public boolean isBlocked(int fromY, int fromX, int toY, int toX) {
-    return false; // TODO: implementar con TDD
+    // The groove between the two rows is identified by the smaller row
+    int grooveY = Math.min(fromY, toY);
+
+    for (Wall wall : walls) {
+      // A horizontal wall at (Y, X) covers columns X and X+1,
+      // so it blocks column fromX if its X is fromX or fromX - 1
+      if (wall.getOrientation() == Orientation.HORIZONTAL
+          && wall.getPositionY() == grooveY
+          && (wall.getPositionX() == fromX || wall.getPositionX() == fromX - 1)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Getters
