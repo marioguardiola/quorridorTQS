@@ -34,6 +34,10 @@ public class Board {
       throw new IllegalArgumentException("Wall can not be null");
     }
 
+    if (isOverlapping(wall)) {
+      throw new IllegalArgumentException("Wall overlaps an existing wall");
+    }
+
     // Logic
     int countPre = walls.size();
     walls.add(wall);
@@ -47,7 +51,30 @@ public class Board {
 
   // Returns true if the given wall overlaps or crosses any wall already on the board
   public boolean isOverlapping(Wall wall) {
-    return false; // TODO: implementar con TDD
+    for (Wall other : walls) {
+      // Same anchor: it is the same wall, or they cross each other in a "+"
+      if (other.getPositionY() == wall.getPositionY()
+          && other.getPositionX() == wall.getPositionX()) {
+        return true;
+      }
+
+      // Two horizontal walls in the same row, shifted 1 column -> they share a cell
+      if (wall.getOrientation() == Orientation.HORIZONTAL
+          && other.getOrientation() == Orientation.HORIZONTAL
+          && other.getPositionY() == wall.getPositionY()
+          && Math.abs(other.getPositionX() - wall.getPositionX()) == 1) {
+        return true;
+      }
+
+      // Two vertical walls in the same column, shifted 1 row -> they share a cell
+      if (wall.getOrientation() == Orientation.VERTICAL
+          && other.getOrientation() == Orientation.VERTICAL
+          && other.getPositionX() == wall.getPositionX()
+          && Math.abs(other.getPositionY() - wall.getPositionY()) == 1) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Returns true if (y, x) is a cell inside the 9x9 board
