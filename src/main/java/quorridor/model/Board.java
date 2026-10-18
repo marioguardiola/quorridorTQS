@@ -45,6 +45,11 @@ public class Board {
     assert invariant();
   }
 
+  // Returns true if the given wall overlaps or crosses any wall already on the board
+  public boolean isOverlapping(Wall wall) {
+    return false; // TODO: implementar con TDD
+  }
+
   // Returns true if (y, x) is a cell inside the 9x9 board
   private boolean isInside(int y, int x) {
     return (y >= 0 && y < SIZE && x >= 0 && x < SIZE);
