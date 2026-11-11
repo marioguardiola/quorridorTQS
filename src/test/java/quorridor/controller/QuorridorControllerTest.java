@@ -10,7 +10,6 @@ class QuorridorControllerTest {
 
   @Test
   void testControllerInitialization() {
-    // Al inicializar el controlador, debe crear el tablero y los dos jugadores
     QuorridorController controller = new QuorridorController();
 
     assertNotNull(controller.getBoard());
@@ -20,5 +19,20 @@ class QuorridorControllerTest {
     Player currentPlayer = controller.getCurrentPlayer();
     assertNotNull(currentPlayer);
     assertEquals(0, currentPlayer.getGoalY());
+  }
+
+  @Test
+  void testSwitchTurnAfterMove() {
+    QuorridorController controller = new QuorridorController();
+
+    // Starts player 1
+    assertEquals("Player 1", controller.getCurrentPlayer().getName());
+
+    // Try a move
+    boolean moved = controller.moveCurrentPlayer(new quorridor.model.Position(7, 4));
+
+    assertTrue(moved);
+    // Change player turn
+    assertEquals("Player 2", controller.getCurrentPlayer().getName());
   }
 }
