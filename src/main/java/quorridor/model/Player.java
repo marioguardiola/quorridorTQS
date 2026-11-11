@@ -12,13 +12,14 @@ public class Player {
   private int positionX;
   private int goalY;
 
-  // Prepare correctly the setUp
   boolean invariant(){
-    //Walls [0-10], posY posX [0-8], goalY 0 o 8,
-    return (walls <= 10 && walls >= 0 &&
+    //Valid name, Walls [0-10], posY posX [0-8], goalY 0 o 8,
+    return (name != null && !name.trim().isEmpty() &&
+            walls <= 10 && walls >= 0 &&
             positionX >= 0 && positionX <= 8 &&
             positionY >= 0 && positionY <= 8 &&
-            (goalY == 0 || goalY == 8) );
+            (goalY == 0 || goalY == 8)
+    );
   }
 
   public Player(String name, int idUser, int walls, int positionY, int positionX, int goalY) {
@@ -45,10 +46,13 @@ public class Player {
 
   // Getters
   public String getName() { return this.name; }
+  public int getIdUser() { return this.idUser; }
   public int getWalls() { return this.walls; }
   public int getPositionY() { return this.positionY; }
   public int getPositionX() { return this.positionX; }
-  public int getGoalY() { return this.goalY; } // CORREGIDO
+  public int getGoalY() { return this.goalY; }
+  public Position getPosition() {return new Position(positionY, positionX);}
+
 
   // Methods
   public void setPosition(int positionY, int positionX) {
@@ -64,12 +68,11 @@ public class Player {
     this.positionX = positionX;
     this.positionY = positionY;
 
+    // Post-conditions
+    assert this.positionY == positionY && this.positionX == positionX;
+
     assert invariant();
 
-  }
-
-  public Position getPosition() {
-    return new Position(positionY, positionX);
   }
 
   public void useWall() {
@@ -77,7 +80,7 @@ public class Player {
     assert invariant();
 
     // Pre-condition
-    if (!hasWalls()) {throw new IllegalStateException("El jugador no tiene muros disponibles");}
+    if (!hasWalls()) {throw new IllegalStateException("Player has no walls left");}
 
     // Logic
     int wallsBefore = walls;
@@ -90,12 +93,7 @@ public class Player {
 
   }
 
-  public boolean hasWalls() {
-    return (this.walls > 0);
-  }
+  public boolean hasWalls() {return (this.walls > 0);}
 
-  public boolean hasReachedGoal() {
-    return(this.positionY == this.goalY);
-  }
-
+  public boolean hasReachedGoal() {return(this.positionY == this.goalY);}
 }
