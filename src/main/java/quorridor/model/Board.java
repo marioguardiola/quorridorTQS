@@ -24,8 +24,13 @@ public class Board {
     return (walls != null && walls.size() <= MAX_WALLS);
   }
 
-  // Adds a wall to the board
+  // Versión que acepta sólo el muro (para compatibilidad o tableros sin jugadores)
   public void addWall(Wall wall) {
+    addWall(wall, null);
+  }
+
+  // Versión completa con la lista de jugadores para validar que nadie queda encerrado
+  public void addWall(Wall wall, List<Player> players) {
     // Invariant (begin)
     assert invariant();
 
@@ -38,15 +43,83 @@ public class Board {
       throw new IllegalArgumentException("Wall overlaps an existing wall");
     }
 
-    // Logic
-    int countPre = walls.size();
+    // Temporarily add the wall to check paths
     walls.add(wall);
 
-    // Post-condition: exactly one more wall
-    assert walls.size() == countPre + 1;
+    // Check if every player still has at least one valid path to their goal
+    if (players != null) {
+      for (Player player : players) {
+        if (!hasPath(player.getPositionY(), player.getPositionX(), player.getGoalY())) {
+          // Rollback: remove the wall because it traps a player
+          walls.remove(walls.size() - 1);
+          throw new IllegalArgumentException("Wall cannot be placed: it completely traps player " + player.getName());
+        }
+      }
+    }
 
     // Invariant (end)
     assert invariant();
+  }
+
+  /**
+   * Checks if there is at least one valid path from (startY, startX) to the target goal row (targetGoalY)
+   * using a Breadth-First Search (BFS) traversal, respecting placed walls.
+   */
+  public boolean hasPath(int startY, int startX, int targetGoalY) {
+    // Invariant check
+    assert invariant();
+
+    // Pre-conditions
+    if (!isInside(startY, startX)) {
+      throw new IllegalArgumentException("Start position is out of the board");
+    }
+    if (targetGoalY != 0 && targetGoalY != 8) {
+      throw new IllegalArgumentException("Target goal Y must be 0 or 8");
+    }
+
+    // If already at the goal row, path exists
+    if (startY == targetGoalY) {
+      return true;
+    }
+
+    java.util.Queue<int[]> queue = new java.util.LinkedList<>();
+    java.util.Set<String> visited = new java.util.HashSet<>();
+
+    queue.add(new int[]{startY, startX});
+    visited.add(startY + "," + startX);
+
+    // Orthogonal directions: up, down, left, right
+    int[] dY = {-1, 1, 0, 0};
+    int[] dX = {0, 0, -1, 1};
+
+    while (!queue.isEmpty()) {
+      int[] current = queue.poll();
+      int currY = current[0];
+      int currX = current[1];
+
+      // Reached the target goal row
+      if (currY == targetGoalY) {
+        return true;
+      }
+
+      for (int i = 0; i < 4; i++) {
+        int nextY = currY + dY[i];
+        int nextX = currX + dX[i];
+
+        // Check if next cell is within bounds and not blocked by a wall
+        if (isInside(nextY, nextX)) {
+          if (!isBlocked(currY, currX, nextY, nextX)) {
+            String key = nextY + "," + nextX;
+            if (!visited.contains(key)) {
+              visited.add(key);
+              queue.add(new int[]{nextY, nextX});
+            }
+          }
+        }
+      }
+    }
+
+    return false; // Queue emptied without reaching the goal -> player is trapped
   }
 
   // Returns true if the given wall overlaps or crosses any wall already on the board

@@ -305,14 +305,16 @@ public class BoardTest {
     Player player = new Player("Irene", 1, 10, 8, 4, 0);
     java.util.List<Player> players = java.util.List.of(player);
 
-    // Intentamos colocar muros alrededor o que simulen un bloqueo crítico
-    board.addWall(new Wall(7, 3, Orientation.HORIZONTAL), players);
+    // Colocamos muros que bloqueen TODO el ancho de la fila 7 (del anclaje 0 al 6)
+    board.addWall(new Wall(7, 0, Orientation.HORIZONTAL), players);
+    board.addWall(new Wall(7, 2, Orientation.HORIZONTAL), players);
     board.addWall(new Wall(7, 4, Orientation.HORIZONTAL), players);
-    board.addWall(new Wall(7, 5, Orientation.HORIZONTAL), players);
+    board.addWall(new Wall(7, 6, Orientation.HORIZONTAL), players);
 
-    // El sistema debe evitar que un muro encierre por completo al jugador lanzando excepción
+    // Al intentar colocar el último muro que sella el último hueco libre,
+    // el sistema debe detectar que el jugador queda atrapado y lanzar la excepción
     assertThrows(IllegalArgumentException.class, () -> {
-      board.addWall(new Wall(7, 2, Orientation.HORIZONTAL), players);
+      board.addWall(new Wall(7, 1, Orientation.HORIZONTAL), players);
     });
   }
 }
