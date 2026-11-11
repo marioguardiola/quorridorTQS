@@ -297,4 +297,24 @@ public class BoardTest {
     // Precondición: posición inicial fuera del tablero
     assertThrows(IllegalArgumentException.class, () -> board.hasPath(-1, 4, 0));
   }
+
+  @Test
+  void testAddWallTrapsPlayerThrowsException() {
+    Board board = new Board();
+    // Creamos un jugador en la fila 8, columna 4, con meta en la fila 0
+    Player player = new Player("Irene", 1, 10, 8, 4, 0);
+    java.util.List<Player> players = java.util.List.of(player);
+
+    // Simulamos colocar muros que bloqueen el paso (ejemplo conceptual de encierro)
+    // Puedes probar a añadir muros consecutivos que cierren el avance vertical
+    board.addWall(new Wall(7, 3, Orientation.HORIZONTAL), players);
+    board.addWall(new Wall(7, 4, Orientation.HORIZONTAL), players);
+    board.addWall(new Wall(7, 5, Orientation.HORIZONTAL), players);
+
+    // Si un muro intenta cerrar el último hueco disponible que aísla al jugador:
+    // (Dependiendo de la configuración exacta de los muros, saltará la excepción)
+    assertThrows(IllegalArgumentException.class, () -> {
+      board.addWall(new Wall(7, 2, Orientation.HORIZONTAL), players);
+    });
+  }
 }

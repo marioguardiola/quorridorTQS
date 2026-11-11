@@ -86,7 +86,7 @@ public class Board {
   }
 
   // Adds a wall to the board
-  public void addWall(Wall wall) {
+  public void addWall(Wall wall, List<Player> players) {
     // Invariant (begin)
     assert invariant();
 
@@ -102,6 +102,17 @@ public class Board {
     // Logic
     int countPre = walls.size();
     walls.add(wall);
+
+    // Check if every player still has at least one valid path to their goal
+    if (players != null) {
+      for (Player player : players) {
+        if (!hasPath(player.getPositionY(), player.getPositionX(), player.getGoalY())) {
+          // Rollback: remove the wall because it traps a player
+          walls.remove(walls.size() - 1);
+          throw new IllegalArgumentException("Wall cannot be placed: it completely traps player " + player.getName());
+        }
+      }
+    }
 
     // Post-condition: exactly one more wall
     assert walls.size() == countPre + 1;
