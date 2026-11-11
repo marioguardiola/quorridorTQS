@@ -52,4 +52,36 @@ class MoveValidationTest {
     // No need to consultate board -> Logic invalid
     verify(boardMock, never()).isBlocked(anyInt(), anyInt(), anyInt(), anyInt());
   }
+
+  @Test
+  void testIsValidMove_ValidJump() {
+    Position from = new Position(6, 4);
+    Position opponent = new Position(5, 4);
+    Position to = new Position(4, 4);
+
+    // Mocking board: ningún tramo del salto está bloqueado por muros
+    when(boardMock.isBlocked(6, 4, 5, 4)).thenReturn(false);
+    when(boardMock.isBlocked(5, 4, 4, 4)).thenReturn(false);
+
+    assertTrue(validator.isValidMove(from, to, opponent));
+
+    // Verificamos que se consultaron ambos tramos en el tablero
+    verify(boardMock).isBlocked(6, 4, 5, 4);
+    verify(boardMock).isBlocked(5, 4, 4, 4);
+  }
+
+  @Test
+  void testIsValidMove_JumpBlockedByWall() {
+    Position from = new Position(6, 4);
+    Position opponent = new Position(5, 4);
+    Position to = new Position(4, 4);
+
+    // Mocking board: el segundo tramo está bloqueado por un muro
+    when(boardMock.isBlocked(6, 4, 5, 4)).thenReturn(false);
+    when(boardMock.isBlocked(5, 4, 4, 4)).thenReturn(true);
+
+    assertFalse(validator.isValidMove(from, to, opponent));
+    verify(boardMock).isBlocked(6, 4, 5, 4);
+    verify(boardMock).isBlocked(5, 4, 4, 4);
+  }
 }
