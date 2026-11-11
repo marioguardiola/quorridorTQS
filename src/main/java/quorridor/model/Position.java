@@ -1,7 +1,7 @@
 package quorridor.model;
 
 public class Position {
-  int y, x;
+  private int y, x;
 
   public boolean invariant(){
     return ((y>=0 && y<=8) && (x<=8 && x>=0));
@@ -18,7 +18,7 @@ public class Position {
     assert invariant();
   }
 
-  void setY(int y) {
+  public void setY(int y) {
     // Assert invariant
     assert invariant();
 
@@ -30,7 +30,7 @@ public class Position {
 
     assert invariant();
   }
-  void setX(int x) {
+  public void setX(int x) {
     // Assert invariant
     assert invariant();
 
@@ -42,6 +42,6 @@ public class Position {
 
     assert invariant();
   }
-  int getY() {return y;}
-  int getX() {return x;}
+  public int getY() {return y;}
+  public int getX() {return x;}
 }
