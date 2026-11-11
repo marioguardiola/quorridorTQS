@@ -7,7 +7,6 @@ public class BoardTest {
 
   @Test
   void testNewBoardIsEmpty() {
-    // Valor límite (lista buida): un tablero nuevo no tiene ningún muro
     Board board = new Board();
     assertEquals(0, board.getWallCount());
   }
@@ -16,23 +15,22 @@ public class BoardTest {
   void testAddWall() {
     Board board = new Board();
 
-    // Valor límite (un únic element): añadir un muro -> el contador pasa de 0 a 1
+    // Limit value 1
     board.addWall(new Wall(2, 3, Orientation.HORIZONTAL));
     assertEquals(1, board.getWallCount());
 
-    // Partición válida (varios elementos): añadir otro muro -> de 1 a 2
+    // Add a wall correctly
     board.addWall(new Wall(5, 5, Orientation.VERTICAL));
     assertEquals(2, board.getWallCount());
   }
 
   @Test
   void testAddWallNull() {
-    // Partición inválida: no se puede añadir un muro nulo (precondición)
     Board board = new Board();
     assertThrows(IllegalArgumentException.class, () -> board.addWall(null));
   }
 
-  // ---------- isBlocked v1: movimientos verticales ----------
+  // ---------- isBlocked v1: Vertical Movements ----------
 
   @Test
   void testIsBlockedEmptyBoard() {
@@ -43,7 +41,7 @@ public class BoardTest {
 
   @Test
   void testIsBlockedMoveDown() {
-    // Bajar de (2,3) a (3,3)
+    //(2,3) -> (3,3)
 
     // Partición: muro H en (2,3) cubre X=3 y X=4 -> bloquea
     Board b1 = new Board();
@@ -89,11 +87,11 @@ public class BoardTest {
     assertFalse(b2.isBlocked(3, 3, 2, 3));
   }
 
-  // ---------- isBlocked v2: movimientos laterales ----------
+  // ---------- isBlocked v2: Horizontal movements ----------
 
   @Test
   void testIsBlockedMoveRight() {
-    // Ir a la derecha de (3,2) a (3,3)
+    // (3,2) -> (3,3)
 
     // Partición: muro V en (3,2) cubre filas 3 y 4 -> bloquea
     Board b1 = new Board();
@@ -267,8 +265,6 @@ public class BoardTest {
     assertFalse(board.isOverlapping(new Wall(2, 4, Orientation.HORIZONTAL)));
   }
 
-  // ---------- Tests para la validación de caminos y evitar encierros ----------
-
   @Test
   void testHasPathEmptyBoard() {
     Board board = new Board();
@@ -301,21 +297,61 @@ public class BoardTest {
   @Test
   void testAddWallTrapsPlayerThrowsException() {
     Board board = new Board();
-    // Creamos un jugador en la fila 8, columna 4, con meta en la fila 0
-    Player player = new Player("Irene", 1, 10, 8, 4, 0);
+    //Player in (8,0) goal -> row 0
+    Player player = new Player("Irene", 1, 10, 8, 0, 0);
     java.util.List<Player> players = java.util.List.of(player);
 
-    // Colocamos muros que bloqueen TODO el ancho de la fila 7 (del anclaje 0 al 6)
+    // Wall correct
     board.addWall(new Wall(7, 0, Orientation.HORIZONTAL), players);
-    board.addWall(new Wall(7, 2, Orientation.HORIZONTAL), players);
-    board.addWall(new Wall(7, 4, Orientation.HORIZONTAL), players);
-    board.addWall(new Wall(7, 6, Orientation.HORIZONTAL), players);
+    // Wall that trapped the player
+    IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        () -> board.addWall(new Wall(7, 1, Orientation.VERTICAL), players));
 
-    // Al intentar colocar el último muro que sella el último hueco libre,
-    // el sistema debe detectar que el jugador queda atrapado y lanzar la excepción
-    assertThrows(IllegalArgumentException.class, () -> {
-      board.addWall(new Wall(7, 1, Orientation.HORIZONTAL), players);
-    });
+    assertTrue(ex.getMessage().contains("traps"));
+    assertEquals(1, board.getWallCount());
+  }
+
+  @Test
+  void testHasPathAlreadyAtGoal() {
+    Board board = new Board();
+    assertTrue(board.hasPath(8, 4, 8));
+    assertTrue(board.hasPath(0, 4, 0));
+  }
+
+  @Test
+  void testHasPathDetour() {
+    // H(7,0) bloquea subir desde las columnas 0 y 1: hay que rodear por la columna 2
+    Board board = new Board();
+    board.addWall(new Wall(7, 0, Orientation.HORIZONTAL));
+    assertTrue(board.hasPath(8, 0, 0));
+  }
+
+  @Test
+  void testHasPathNoPath() {
+    // Hueco {(8,0),(8,1)} sellado con H(7,0) + V(7,1)
+    Board board = new Board();
+    board.addWall(new Wall(7, 0, Orientation.HORIZONTAL));
+    board.addWall(new Wall(7, 1, Orientation.VERTICAL));
+    assertFalse(board.hasPath(8, 0, 0));
+    assertFalse(board.hasPath(8, 1, 0));
+    assertTrue(board.hasPath(8, 2, 0)); // fuera del hueco sí hay camino
+  }
+
+  // Condition in Walls
+  @Test
+  void testAddWallMaxWalls() {
+    Board board = new Board();
+    for (int y = 0; y <= 4; y++) {
+      for (int x = 0; x <= 6; x += 2) {
+        board.addWall(new Wall(y, x, Orientation.HORIZONTAL));
+      }
+    }
+    assertEquals(Board.MAX_WALLS, board.getWallCount());
+
+   // Limit value of walls
+    assertThrows(IllegalStateException.class,
+        () -> board.addWall(new Wall(5, 0, Orientation.HORIZONTAL)));
+    assertEquals(Board.MAX_WALLS, board.getWallCount());
   }
 
 }
