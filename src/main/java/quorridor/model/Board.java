@@ -85,6 +85,11 @@ public class Board {
     return false; // Player trapped
   }
 
+  // Versión que acepta sólo el muro (para tests existentes o cuando no hay jugadores)
+  public void addWall(Wall wall) {
+    addWall(wall, null);
+  }
+
   // Adds a wall to the board
   public void addWall(Wall wall, List<Player> players) {
     // Invariant (begin)
