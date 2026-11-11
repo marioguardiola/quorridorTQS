@@ -38,6 +38,9 @@ public class Board {
     if (wall == null) {
       throw new IllegalArgumentException("Wall can not be null");
     }
+    if (walls.size() >= MAX_WALLS) {
+      throw new IllegalStateException("Board already has the maximum number of walls");
+    }
 
     if (isOverlapping(wall)) {
       throw new IllegalArgumentException("Wall overlaps an existing wall");
