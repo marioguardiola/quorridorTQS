@@ -266,7 +266,6 @@ public class BoardTest {
     board.addWall(new Wall(2, 3, Orientation.VERTICAL));
     assertFalse(board.isOverlapping(new Wall(2, 4, Orientation.HORIZONTAL)));
   }
-<<<<<<< HEAD
 
   // ---------- Tests para la validación de caminos y evitar encierros ----------
 
@@ -318,6 +317,5 @@ public class BoardTest {
       board.addWall(new Wall(7, 1, Orientation.HORIZONTAL), players);
     });
   }
-=======
->>>>>>> feature/player
+
 }
