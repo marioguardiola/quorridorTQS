@@ -24,6 +24,67 @@ public class Board {
     return (walls != null && walls.size() <= MAX_WALLS);
   }
 
+  /**
+   * Checks if there is at least one valid path from (startY, startX) to (targetGoalY)
+   * using a Breadth-First Search (BFS) traversal, respecting placed walls.
+   */
+  public boolean hasPath(int startY, int startX, int targetGoalY) {
+    // Invariant
+    assert invariant();
+
+    // Pre-conditions
+    if (!isInside(startY, startX)) {
+      throw new IllegalArgumentException("Start position is out of the board");
+    }
+    if (targetGoalY != 0 && targetGoalY != 8) {
+      throw new IllegalArgumentException("Target goal Y must be 0 or 8");
+    }
+
+    // If already at the goal row, path exists
+    if (startY == targetGoalY) {
+      return true;
+    }
+
+    java.util.Queue<int[]> queue = new java.util.LinkedList<>();
+    java.util.Set<String> visited = new java.util.HashSet<>();
+
+    queue.add(new int[]{startY, startX});
+    visited.add(startY + "," + startX);
+
+    // Orthogonal directions: up, down, left, right
+    int[] dY = {-1, 1, 0, 0};
+    int[] dX = {0, 0, -1, 1};
+
+    while (!queue.isEmpty()) {
+      int[] current = queue.poll();
+      int currY = current[0];
+      int currX = current[1];
+
+      // Reached the target goal row
+      if (currY == targetGoalY) {
+        return true;
+      }
+
+      for (int i = 0; i < 4; i++) {
+        int nextY = currY + dY[i];
+        int nextX = currX + dX[i];
+
+        // Check if next cell is within bounds and not blocked by a wall
+        if (isInside(nextY, nextX)) {
+          if (!isBlocked(currY, currX, nextY, nextX)) {
+            String key = nextY + "," + nextX;
+            if (!visited.contains(key)) {
+              visited.add(key);
+              queue.add(new int[]{nextY, nextX});
+            }
+          }
+        }
+      }
+    }
+
+    return false; // Player trapped
+  }
+
   // Adds a wall to the board
   public void addWall(Wall wall) {
     // Invariant (begin)
