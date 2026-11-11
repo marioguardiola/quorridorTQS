@@ -68,6 +68,10 @@ public class Player {
 
   }
 
+  public Position getPosition() {
+    return new Position(positionY, positionX);
+  }
+
   public void useWall() {
     // Assert invariant
     assert invariant();
