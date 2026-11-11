@@ -35,7 +35,7 @@ public class Position {
     assert invariant();
 
     // Pre-condition
-    if(x < 0 || x > 8) {throw new IllegalArgumentException("Position Y invailid");}
+    if(x < 0 || x > 8) {throw new IllegalArgumentException("Position X invailid");}
 
     // Logic
     this.x = x;
