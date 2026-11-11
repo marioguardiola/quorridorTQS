@@ -266,4 +266,35 @@ public class BoardTest {
     board.addWall(new Wall(2, 3, Orientation.VERTICAL));
     assertFalse(board.isOverlapping(new Wall(2, 4, Orientation.HORIZONTAL)));
   }
+
+  // ---------- Tests para la validación de caminos (Evitar encierros) ----------
+
+  @Test
+  void testHasPathEmptyBoard() {
+    Board board = new Board();
+    // Desde cualquier posición inicial (ej: fila 8, col 4) debe haber camino hacia la meta (fila 0)
+    assertTrue(board.hasPath(8, 4, 0));
+    // Y viceversa (desde fila 0 a meta fila 8)
+    assertTrue(board.hasPath(0, 4, 8));
+  }
+
+  @Test
+  void testHasPathWithWallsNavigable() {
+    Board board = new Board();
+    // Colocamos algunos muros que obliguen a dar un rodeo pero dejen pasar
+    board.addWall(new Wall(4, 2, Orientation.VERTICAL));
+    board.addWall(new Wall(4, 4, Orientation.VERTICAL));
+
+    // El jugador en (8,4) debe poder encontrar un camino hacia la meta en la fila 0
+    assertTrue(board.hasPath(8, 4, 0));
+  }
+
+  @Test
+  void testHasPathInvalidGoalOrPosition() {
+    Board board = new Board();
+    // Precondición: meta inválida (distinta de 0 o 8)
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(8, 4, 5));
+    // Precondición: posición inicial fuera del tablero
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(-1, 4, 0));
+  }
 }
