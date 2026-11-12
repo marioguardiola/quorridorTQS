@@ -4,6 +4,7 @@ import quorridor.model.Board;
 import quorridor.model.MoveValidation;
 import quorridor.model.Player;
 import quorridor.view.GameView;
+import quorridor.model.Position;
 
 /**
  * Controlador (MVC): recibe las acciones del usuario, las aplica al Modelo
@@ -33,7 +34,24 @@ public class GameController {
   public Player getCurrentPlayer() { return currentPlayer; }
 
   // Moves the current player's pawn to (toY, toX). Returns true if the move was done
+  // v1: validates the move, moves the pawn and changes the turn
   public boolean movePawn(int toY, int toX) {
-    return false; // TODO: implementar con TDD
+    Player opponent = (currentPlayer == player1) ? player2 : player1;
+
+    Position from = currentPlayer.getPosition();
+    Position to = new Position(toY, toX);
+    Position opponentPos = opponent.getPosition();
+
+    // Invalid move: nothing changes and the View shows an error
+    if (!moveValidation.isValidMove(from, to, opponentPos)) {
+      view.showMessage("Movimiento no válido");
+      return false;
+    }
+
+    // Valid move: move the pawn, change the turn and tell the View
+    currentPlayer.setPosition(toY, toX);
+    currentPlayer = opponent;
+    view.showTurn(currentPlayer);
+    return true;
   }
 }
