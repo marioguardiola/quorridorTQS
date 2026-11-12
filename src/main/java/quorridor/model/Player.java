@@ -23,14 +23,25 @@ public class Player {
   }
 
   public Player(String name, int idUser, int walls, int positionY, int positionX, int goalY) {
-    // Pre-condition
-    if (name == null || name.trim().isEmpty()) {throw new IllegalArgumentException("Name can not be null");}
-    if (walls < 0 || walls > 10) {throw new IllegalArgumentException("Walls must be between 0 and 10");}
+    // Pre-conditions
+    if (name == null || name.trim().isEmpty()) {
+      throw new IllegalArgumentException("Name can not be null");
+    }
+    if (walls < 0 || walls > 10) {
+      throw new IllegalArgumentException("Walls must be between 0 and 10");
+    }
     if (positionX < 0 || positionX > 8 || positionY < 0 || positionY > 8) {
-      throw new IllegalArgumentException("Position out of board");}
-    if (goalY != 0 && goalY != 8) {throw new IllegalArgumentException("Goal must be 0 or 8");}
-    if (positionY == 0 && goalY != 8) {throw new IllegalArgumentException("Goal wrong established");}
-    if (positionY == 8 && goalY != 0) {throw new IllegalArgumentException("Goal wrong established");}
+      throw new IllegalArgumentException("Position out of board");
+    }
+    if (goalY != 0 && goalY != 8) {
+      throw new IllegalArgumentException("Goal must be 0 or 8");
+    }
+    if (positionY == 0 && goalY != 8) {
+      throw new IllegalArgumentException("Goal wrong established");
+    }
+    if (positionY == 8 && goalY != 0) {
+      throw new IllegalArgumentException("Goal wrong established");
+    }
 
     // Logic
     this.name = name;
