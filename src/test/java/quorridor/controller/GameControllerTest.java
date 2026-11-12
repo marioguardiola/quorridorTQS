@@ -17,6 +17,7 @@ public class GameControllerTest {
   private MockMoveValidation mockValidation;
   private MockGameView mockView;
   private GameController controller;
+  private MockBoard mockBoard;
 
   @BeforeEach
   void setUp() {
@@ -24,9 +25,12 @@ public class GameControllerTest {
     // jugador 2 arriba (0,4) con meta en la fila 8
     player1 = new Player("Player 1", 1, 10, 8, 4, 0);
     player2 = new Player("Player 2", 2, 10, 0, 4, 8);
+
+    // Mock objects hechos a mano, inyectados por el constructor (Inversion of Control)
+    mockBoard = new MockBoard();
     mockValidation = new MockMoveValidation();
     mockView = new MockGameView();
-    controller = new GameController(new Board(), player1, player2, mockValidation, mockView);
+    controller = new GameController(mockBoard, player1, player2, mockValidation, mockView);
   }
 
   @Test
