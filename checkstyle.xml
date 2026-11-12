@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Normas de calidad del proyecto Quorridor TQS.
+  Se comprueban automáticamente en cada build (mvn verify) y en la CI.
+  Si alguna no se cumple, el build falla y no se puede hacer merge a main.
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+
+    <!-- Indentar con espacios, nunca con tabuladores -->
+    <module name="FileTabCharacter"/>
+
+    <!-- Longitud máxima de línea: 100 caracteres -->
+    <module name="LineLength">
+        <property name="max" value="100"/>
+        <property name="ignorePattern" value="^package.*|^import.*|http://|https://"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Imports limpios: sin comodines (salvo los static de JUnit), sin imports sin usar -->
+        <module name="AvoidStarImport">
+            <property name="allowStaticMemberImports" value="true"/>
+        </module>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+
+        <!-- Llaves obligatorias en if / else / for / while -->
+        <module name="NeedBraces"/>
+    </module>
+</module>

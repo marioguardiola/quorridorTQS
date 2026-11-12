@@ -69,8 +69,9 @@ public class Board {
   }
 
   /**
-   * Checks if there is at least one valid path from (startY, startX) to the target goal row (targetGoalY)
-   * using a Breadth-First Search (BFS) traversal, respecting placed walls.
+   * Checks if there is at least one valid path from (startY, startX) to the target
+   * goal row (targetGoalY) using a Breadth-First Search (BFS) traversal,
+   * respecting placed walls.
    */
   public boolean hasPath(int startY, int startX, int targetGoalY) {
     // Invariant check

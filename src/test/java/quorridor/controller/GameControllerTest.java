@@ -2,7 +2,6 @@ package quorridor.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import quorridor.model.Board;
 import quorridor.model.Player;
 import quorridor.model.Orientation;
 

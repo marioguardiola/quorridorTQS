@@ -9,7 +9,9 @@ public class Position {
 
   public Position(int y, int x) {
     // Pre-conditions
-    if (y < 0 || y > 8 || x < 0 || x > 8) {throw new IllegalArgumentException("The position is out of the board");}
+    if (y < 0 || y > 8 || x < 0 || x > 8) {
+      throw new IllegalArgumentException("The position is out of the board");
+    }
 
     // Logic
     this.y = y;
