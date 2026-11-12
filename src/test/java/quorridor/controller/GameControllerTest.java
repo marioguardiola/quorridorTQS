@@ -147,4 +147,45 @@ public class GameControllerTest {
     // Interacción con la Vista: se muestra un mensaje de error
     assertEquals(1, mockView.messages.size());
   }
+
+  // ---------- placeWall v2: sin muros, ancla inválida, partida terminada ----------
+
+  @Test
+  void testPlaceWallNoWallsLeft() {
+    // Valor frontera inferior: el jugador tiene 0 muros -> no puede colocar ninguno
+    Player noWalls = new Player("Player 1", 1, 0, 8, 4, 0);
+    GameController c = new GameController(mockBoard, noWalls, player2, mockValidation, mockView);
+
+    assertFalse(c.placeWall(3, 3, Orientation.HORIZONTAL));
+
+    // Mock (expectation): ni siquiera se intenta colocar el muro en el tablero
+    assertEquals(0, mockBoard.addWallCount);
+    // Interacción con la Vista: se muestra un mensaje de error
+    assertEquals(1, mockView.messages.size());
+    // El turno no cambia
+    assertEquals(noWalls, c.getCurrentPlayer());
+  }
+
+  @Test
+  void testPlaceWallInvalidAnchor() {
+    // Valores límite exteriores del ancla del muro: 8 y -1 (rango válido [0, 7])
+    assertFalse(controller.placeWall(8, 3, Orientation.HORIZONTAL));
+    assertFalse(controller.placeWall(3, -1, Orientation.VERTICAL));
+
+    // No se intenta colocar en el tablero, y la Vista muestra un error por cada intento
+    assertEquals(0, mockBoard.addWallCount);
+    assertEquals(2, mockView.messages.size());
+  }
+
+  @Test
+  void testPlaceWallAfterGameOver() {
+    // Partición inválida: con la partida terminada no se pueden colocar muros
+    player1.setPosition(0, 3); // el jugador 1 ya está en su fila meta
+
+    assertFalse(controller.placeWall(3, 3, Orientation.HORIZONTAL));
+
+    // No se toca el tablero y el jugador no gasta ningún muro
+    assertEquals(0, mockBoard.addWallCount);
+    assertEquals(10, player1.getWalls());
+  }
 }
