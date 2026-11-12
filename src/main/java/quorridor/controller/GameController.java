@@ -5,6 +5,7 @@ import quorridor.model.MoveValidation;
 import quorridor.model.Player;
 import quorridor.view.GameView;
 import quorridor.model.Position;
+import quorridor.model.Orientation;
 
 /**
  * Controlador (MVC): recibe las acciones del usuario, las aplica al Modelo
@@ -78,5 +79,11 @@ public class GameController {
     currentPlayer = opponent;
     view.showTurn(currentPlayer);
     return true;
+  }
+
+  // Places a wall for the current player at (y, x) with the given orientation.
+  // Returns true if the wall was placed
+  public boolean placeWall(int y, int x, Orientation orientation) {
+    return false; // TODO: implementar con TDD
   }
 }
