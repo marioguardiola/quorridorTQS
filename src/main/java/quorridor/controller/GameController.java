@@ -33,6 +33,11 @@ public class GameController {
   // Getters
   public Player getCurrentPlayer() { return currentPlayer; }
 
+  // Returns true if one of the players has reached their goal row
+  public boolean isGameOver() {
+    return false; // TODO: implementar con TDD
+  }
+
   // Moves the current player's pawn to (toY, toX). Returns true if the move was done
   // v1: validates the move, moves the pawn and changes the turn
   public boolean movePawn(int toY, int toX) {

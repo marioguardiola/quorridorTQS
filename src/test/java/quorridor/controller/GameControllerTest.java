@@ -66,4 +66,44 @@ public class GameControllerTest {
     // Interacción con la Vista: se muestra un mensaje de error
     assertEquals(1, mockView.messages.size());
   }
+
+  // ---------- movePawn v2: ganador y casillas fuera del tablero ----------
+
+  @Test
+  void testMovePawnWinner() {
+    // Valor frontera: el jugador 1 pasa de la fila 1 a su fila meta (0) -> gana
+    player1.setPosition(1, 4);
+    mockValidation.setValid(true);
+
+    assertTrue(controller.movePawn(0, 4));
+
+    // Interacción con la Vista: se anuncia al ganador
+    assertEquals(player1, mockView.winner);
+    assertTrue(controller.isGameOver());
+  }
+
+  @Test
+  void testMovePawnAfterGameOver() {
+    // Partición inválida: con la partida terminada no se puede mover
+    player1.setPosition(1, 4);
+    mockValidation.setValid(true);
+    controller.movePawn(0, 4); // gana el jugador 1
+
+    assertFalse(controller.movePawn(1, 4));
+    // Mock (expectation): el validador solo se consultó en el primer movimiento
+    assertEquals(1, mockValidation.callCount);
+  }
+
+  @Test
+  void testMovePawnOutOfBoard() {
+    // Valores límite exteriores: casilla destino fuera del tablero (9 y -1)
+    assertFalse(controller.movePawn(9, 4));
+    assertFalse(controller.movePawn(-1, 4));
+
+    // El peón no se mueve y la Vista muestra un error por cada intento
+    assertEquals(8, player1.getPositionY());
+    assertEquals(2, mockView.messages.size());
+    // Mock (expectation): no se llega a consultar al validador
+    assertEquals(0, mockValidation.callCount);
+  }
 }
