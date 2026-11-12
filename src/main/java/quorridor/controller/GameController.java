@@ -1,5 +1,8 @@
 package quorridor.controller;
 
+import java.util.List;
+
+import quorridor.model.Wall;
 import quorridor.model.Board;
 import quorridor.model.MoveValidation;
 import quorridor.model.Player;
@@ -83,7 +86,23 @@ public class GameController {
 
   // Places a wall for the current player at (y, x) with the given orientation.
   // Returns true if the wall was placed
+  // v1: asks the board to place the wall; if accepted, uses one wall and changes the turn
   public boolean placeWall(int y, int x, Orientation orientation) {
-    return false; // TODO: implementar con TDD
+    Wall wall = new Wall(y, x, orientation);
+
+    try {
+      // The board checks overlaps, trapped players and the maximum number of walls
+      board.addWall(wall, List.of(player1, player2));
+    } catch (IllegalArgumentException | IllegalStateException e) {
+      // The board rejected the wall: nothing changes and the View shows an error
+      view.showMessage("No se puede colocar el muro: " + e.getMessage());
+      return false;
+    }
+
+    // Wall placed: the player uses one wall, the turn changes and the View is told
+    currentPlayer.useWall();
+    currentPlayer = (currentPlayer == player1) ? player2 : player1;
+    view.showTurn(currentPlayer);
+    return true;
   }
 }
