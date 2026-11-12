@@ -72,10 +72,11 @@ public class GameControllerTest {
   @Test
   void testMovePawnWinner() {
     // Valor frontera: el jugador 1 pasa de la fila 1 a su fila meta (0) -> gana
-    player1.setPosition(1, 4);
+    // (columna 3 para no coincidir con el jugador 2, que está en (0,4))
+    player1.setPosition(1, 3);
     mockValidation.setValid(true);
 
-    assertTrue(controller.movePawn(0, 4));
+    assertTrue(controller.movePawn(0, 3));
 
     // Interacción con la Vista: se anuncia al ganador
     assertEquals(player1, mockView.winner);
@@ -85,11 +86,11 @@ public class GameControllerTest {
   @Test
   void testMovePawnAfterGameOver() {
     // Partición inválida: con la partida terminada no se puede mover
-    player1.setPosition(1, 4);
+    player1.setPosition(1, 3);
     mockValidation.setValid(true);
-    controller.movePawn(0, 4); // gana el jugador 1
+    controller.movePawn(0, 3); // gana el jugador 1
 
-    assertFalse(controller.movePawn(1, 4));
+    assertFalse(controller.movePawn(1, 3));
     // Mock (expectation): el validador solo se consultó en el primer movimiento
     assertEquals(1, mockValidation.callCount);
   }
