@@ -86,8 +86,27 @@ public class GameController {
 
   // Places a wall for the current player at (y, x) with the given orientation.
   // Returns true if the wall was placed
-  // v1: asks the board to place the wall; if accepted, uses one wall and changes the turn
+  // v2: before touching the board, checks that the game is not over, that the
+  //     player has walls left and that the anchor is valid
   public boolean placeWall(int y, int x, Orientation orientation) {
+    // The game is already over: no more walls are allowed
+    if (isGameOver()) {
+      view.showMessage("La partida ya ha terminado");
+      return false;
+    }
+
+    // The player has no walls left (checked BEFORE placing the wall on the board)
+    if (!currentPlayer.hasWalls()) {
+      view.showMessage("No te quedan muros");
+      return false;
+    }
+
+    // Invalid anchor (outside [0, 7]): show an error instead of crashing
+    if (!Wall.isValidAnchor(y, x)) {
+      view.showMessage("Posición del muro fuera de rango (0-7)");
+      return false;
+    }
+
     Wall wall = new Wall(y, x, orientation);
 
     try {
