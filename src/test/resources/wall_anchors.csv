@@ -13,3 +13,6 @@ positionY,positionX,expected,caso
 0,0,true,esquina valida (0;0)
 7,7,true,esquina valida (7;7)
 3,3,true,particion valida: centro
+
+4,1,true,valor interior: X = 1
+4,6,true,valor interior: X = 6

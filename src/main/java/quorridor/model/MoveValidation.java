@@ -43,7 +43,6 @@ public class MoveValidation {
       // Calculate where is the opponent
       int midY = (from.getY() + to.getY()) / 2;
       int midX = (from.getX() + to.getX()) / 2;
-      Position middlePos = new Position(midY, midX);
 
       // Verify that it is in the square
       if (opponentPos != null && opponentPos.getY() == midY && opponentPos.getX() == midX) {

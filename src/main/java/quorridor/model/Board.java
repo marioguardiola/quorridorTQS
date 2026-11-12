@@ -29,24 +29,24 @@ public class Board {
     addWall(wall, null);
   }
 
-  // Versión completa con la lista de jugadores para validar que nadie queda encerrado
+  // Full version: receives the players to check that no one gets trapped
   public void addWall(Wall wall, List<Player> players) {
     // Invariant (begin)
     assert invariant();
 
-    // Pre-condition
+    // Pre-conditions
     if (wall == null) {
       throw new IllegalArgumentException("Wall can not be null");
     }
     if (walls.size() >= MAX_WALLS) {
       throw new IllegalStateException("Board already has the maximum number of walls");
     }
-
     if (isOverlapping(wall)) {
       throw new IllegalArgumentException("Wall overlaps an existing wall");
     }
 
-    // Temporarily add the wall to check paths
+    // Logic: temporarily add the wall to check paths
+    int countPre = walls.size();
     walls.add(wall);
 
     // Check if every player still has at least one valid path to their goal
@@ -55,10 +55,14 @@ public class Board {
         if (!hasPath(player.getPositionY(), player.getPositionX(), player.getGoalY())) {
           // Rollback: remove the wall because it traps a player
           walls.remove(walls.size() - 1);
-          throw new IllegalArgumentException("Wall cannot be placed: it completely traps player " + player.getName());
+          throw new IllegalArgumentException(
+              "Wall cannot be placed: it completely traps player " + player.getName());
         }
       }
     }
+
+    // Post-condition: exactly one more wall on the board
+    assert walls.size() == countPre + 1;
 
     // Invariant (end)
     assert invariant();
