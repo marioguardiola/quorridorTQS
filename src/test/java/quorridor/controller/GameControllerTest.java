@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import quorridor.model.Board;
 import quorridor.model.Player;
+import quorridor.model.Orientation;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -110,5 +112,39 @@ public class GameControllerTest {
     assertEquals(2, mockView.messages.size());
     // Mock (expectation): no se llega a consultar al validador
     assertEquals(0, mockValidation.callCount);
+  }
+
+  // ---------- placeWall v1: el tablero acepta o rechaza el muro ----------
+
+  @Test
+  void testPlaceWallValid() {
+    // Partición válida: el tablero (mock) acepta el muro
+    mockBoard.setAccept(true);
+
+    assertTrue(controller.placeWall(3, 3, Orientation.HORIZONTAL));
+
+    // Mock (expectation): el controlador ha pedido al tablero colocar el muro
+    assertEquals(1, mockBoard.addWallCount);
+    // El jugador 1 ha gastado un muro (de 10 a 9)
+    assertEquals(9, player1.getWalls());
+    // Cambia el turno al jugador 2, y se le indica a la Vista
+    assertEquals(player2, controller.getCurrentPlayer());
+    assertEquals(player2, mockView.lastTurn);
+  }
+
+  @Test
+  void testPlaceWallRejectedByBoard() {
+    // Partición inválida: el tablero (mock) rechaza el muro
+    // (se solapa con otro o encierra a un jugador)
+    mockBoard.setAccept(false);
+
+    assertFalse(controller.placeWall(3, 3, Orientation.HORIZONTAL));
+
+    // El jugador no gasta ningún muro
+    assertEquals(10, player1.getWalls());
+    // El turno no cambia
+    assertEquals(player1, controller.getCurrentPlayer());
+    // Interacción con la Vista: se muestra un mensaje de error
+    assertEquals(1, mockView.messages.size());
   }
 }
