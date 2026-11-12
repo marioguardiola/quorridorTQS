@@ -35,12 +35,25 @@ public class GameController {
 
   // Returns true if one of the players has reached their goal row
   public boolean isGameOver() {
-    return false; // TODO: implementar con TDD
+    return player1.hasReachedGoal() || player2.hasReachedGoal();
   }
 
   // Moves the current player's pawn to (toY, toX). Returns true if the move was done
-  // v1: validates the move, moves the pawn and changes the turn
+  // v2: also checks that the game is not over and that the target cell is inside
+  //     the board, and announces the winner
   public boolean movePawn(int toY, int toX) {
+    // The game is already over: no more moves are allowed
+    if (isGameOver()) {
+      view.showMessage("La partida ya ha terminado");
+      return false;
+    }
+
+    // Target cell out of the board: show an error instead of crashing
+    if (toY < 0 || toY >= Board.SIZE || toX < 0 || toX >= Board.SIZE) {
+      view.showMessage("Casilla fuera del tablero");
+      return false;
+    }
+
     Player opponent = (currentPlayer == player1) ? player2 : player1;
 
     Position from = currentPlayer.getPosition();
@@ -53,8 +66,15 @@ public class GameController {
       return false;
     }
 
-    // Valid move: move the pawn, change the turn and tell the View
     currentPlayer.setPosition(toY, toX);
+
+    // The player has reached their goal row: announce the winner
+    if (currentPlayer.hasReachedGoal()) {
+      view.showWinner(currentPlayer);
+      return true;
+    }
+
+    // Normal move: change the turn and tell the View
     currentPlayer = opponent;
     view.showTurn(currentPlayer);
     return true;
