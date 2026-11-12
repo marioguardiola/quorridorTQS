@@ -2,6 +2,8 @@ package quorridor.model;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Tests de Board (clase de bajo nivel).
@@ -387,5 +389,41 @@ public class BoardTest {
     assertThrows(IllegalStateException.class,
         () -> board.addWall(new Wall(5, 0, Orientation.HORIZONTAL)));
     assertEquals(Board.MAX_WALLS, board.getWallCount());
+  }
+
+  // ---------- Caja blanca - loop testing del bucle de isOverlapping ----------
+  // Bucle simple "for (Wall other : walls)": una pasada por cada muro del tablero.
+  // n = MAX_WALLS = 20 pasadas como máximo.
+
+  // Crea un tablero con k muros horizontales que no se solapan entre sí
+  // (filas 0..4, columnas 0, 2, 4 y 6 -> hasta 20 muros)
+  private Board boardWithWalls(int k) {
+    Board board = new Board();
+    for (int i = 0; i < k; i++) {
+      board.addWall(new Wall(i / 4, (i % 4) * 2, Orientation.HORIZONTAL));
+    }
+    return board;
+  }
+
+  // Loop testing: evitar el loop (0), 1, 2, m = 10, n-1 = 19 y n = 20 pasadas
+  @ParameterizedTest(name = "isOverlapping con {0} muros -> {0} pasadas por el bucle")
+  @ValueSource(ints = {0, 1, 2, 10, 19, 20})
+  void testIsOverlappingLoopPasses(int passes) {
+    Board board = boardWithWalls(passes);
+    assertEquals(passes, board.getWallCount());
+
+    // El muro (7,0) no se solapa con ninguno: el bucle recorre TODOS los muros
+    assertFalse(board.isOverlapping(new Wall(7, 0, Orientation.HORIZONTAL)));
+  }
+
+  @Test
+  void testIsOverlappingLoopEarlyExit() {
+    Board board = boardWithWalls(Board.MAX_WALLS);
+
+    // Loop testing - salida anticipada en la 1a pasada: coincide con el 1r muro (0,0)
+    assertTrue(board.isOverlapping(new Wall(0, 0, Orientation.HORIZONTAL)));
+
+    // Loop testing - salida en la última pasada (n = 20): coincide con el último muro (4,6)
+    assertTrue(board.isOverlapping(new Wall(4, 6, Orientation.HORIZONTAL)));
   }
 }
