@@ -1,14 +1,13 @@
 package quorridor.controller;
 
 import java.util.List;
-
-import quorridor.model.Wall;
 import quorridor.model.Board;
 import quorridor.model.MoveValidation;
-import quorridor.model.Player;
-import quorridor.view.GameView;
-import quorridor.model.Position;
 import quorridor.model.Orientation;
+import quorridor.model.Player;
+import quorridor.model.Position;
+import quorridor.model.Wall;
+import quorridor.view.GameView;
 
 /**
  * Controlador (MVC): recibe las acciones del usuario, las aplica al Modelo
@@ -24,28 +23,65 @@ public class GameController {
   private GameView view;
   private Player currentPlayer;
 
+  // Invariant: the current player is always one of the two players
+  boolean invariant() {
+    return currentPlayer == player1 || currentPlayer == player2;
+  }
+
   public GameController(Board board, Player player1, Player player2,
                         MoveValidation moveValidation, GameView view) {
+    // Pre-conditions
+    if (board == null || player1 == null || player2 == null
+        || moveValidation == null || view == null) {
+      throw new IllegalArgumentException("Controller dependencies cannot be null");
+    }
+    if (player1 == player2) {
+      throw new IllegalArgumentException("Players must be different");
+    }
+
     this.board = board;
     this.player1 = player1;
     this.player2 = player2;
     this.moveValidation = moveValidation;
     this.view = view;
     this.currentPlayer = player1; // Empieza el jugador 1
+
+    assert invariant();
   }
 
   // Getters
-  public Player getCurrentPlayer() { return currentPlayer; }
+  public Player getCurrentPlayer() {
+    return currentPlayer;
+  }
+
+  // Returns the player who reached the goal row, or null if the game is not over
+  public Player getWinner() {
+    if (player1.hasReachedGoal()) {
+      return player1;
+    }
+    if (player2.hasReachedGoal()) {
+      return player2;
+    }
+    return null;
+  }
 
   // Returns true if one of the players has reached their goal row
   public boolean isGameOver() {
-    return player1.hasReachedGoal() || player2.hasReachedGoal();
+    return getWinner() != null;
+  }
+
+  // Shows the initial state of the game: the board and whose turn it is
+  public void start() {
+    view.showBoard(board, player1, player2);
+    view.showTurn(currentPlayer);
   }
 
   // Moves the current player's pawn to (toY, toX). Returns true if the move was done
   // v2: also checks that the game is not over and that the target cell is inside
   //     the board, and announces the winner
   public boolean movePawn(int toY, int toX) {
+    assert invariant();
+
     // The game is already over: no more moves are allowed
     if (isGameOver()) {
       view.showMessage("La partida ya ha terminado");
@@ -75,20 +111,25 @@ public class GameController {
     // The player has reached their goal row: announce the winner
     if (currentPlayer.hasReachedGoal()) {
       view.showWinner(currentPlayer);
+      assert invariant();
       return true;
     }
 
     // Normal move: change the turn and tell the View
     currentPlayer = opponent;
     view.showTurn(currentPlayer);
+
+    assert invariant();
     return true;
   }
 
   // Places a wall for the current player at (y, x) with the given orientation.
   // Returns true if the wall was placed
   // v2: before touching the board, checks that the game is not over, that the
-  //     player has walls left and that the anchor is valid
+  //     player has walls left, that the anchor is valid and that the orientation exists
   public boolean placeWall(int y, int x, Orientation orientation) {
+    assert invariant();
+
     // The game is already over: no more walls are allowed
     if (isGameOver()) {
       view.showMessage("La partida ya ha terminado");
@@ -107,6 +148,12 @@ public class GameController {
       return false;
     }
 
+    // Null orientation: show an error instead of crashing
+    if (orientation == null) {
+      view.showMessage("Orientación del muro no válida");
+      return false;
+    }
+
     Wall wall = new Wall(y, x, orientation);
 
     try {
@@ -122,6 +169,8 @@ public class GameController {
     currentPlayer.useWall();
     currentPlayer = (currentPlayer == player1) ? player2 : player1;
     view.showTurn(currentPlayer);
+
+    assert invariant();
     return true;
   }
 }
