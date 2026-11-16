@@ -32,21 +32,20 @@ public class MoveValidation {
     int diffX = Math.abs(from.getX() - to.getX());
     boolean valid = false;
 
-    // 1. Normal movement -> 1 square
+    // Normal movement -> 1 square (cannot land on the opponent)
     if (diffY + diffX == 1) {
-      // 1. Normal movement -> 1 square (cannot land on the opponent)
       boolean onOpponent = opponentPos != null
           && opponentPos.getY() == to.getY()
           && opponentPos.getX() == to.getX();
       valid = !onOpponent && !board.isBlocked(from.getY(), from.getX(), to.getY(), to.getX());
-    }else if ((diffY == 2 && diffX == 0) || (diffY == 0 && diffX == 2)) {
+    } else if ((diffY == 2 && diffX == 0) || (diffY == 0 && diffX == 2)) {
       // Calculate where is the opponent
       int midY = (from.getY() + to.getY()) / 2;
       int midX = (from.getX() + to.getX()) / 2;
 
       // Verify that it is in the square
       if (opponentPos != null && opponentPos.getY() == midY && opponentPos.getX() == midX) {
-        // Verify walls arround
+        // Verify walls around
         boolean blockedFirstStep = board.isBlocked(from.getY(), from.getX(), midY, midX);
         boolean blockedSecondStep = board.isBlocked(midY, midX, to.getY(), to.getX());
         valid = !blockedFirstStep && !blockedSecondStep;
