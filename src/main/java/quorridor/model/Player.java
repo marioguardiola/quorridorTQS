@@ -25,7 +25,7 @@ public class Player {
   public Player(String name, int idUser, int walls, int positionY, int positionX, int goalY) {
     // Pre-conditions
     if (name == null || name.trim().isEmpty()) {
-      throw new IllegalArgumentException("Name can not be null");
+      throw new IllegalArgumentException("Name can not be null or empty");
     }
     if (walls < 0 || walls > 10) {
       throw new IllegalArgumentException("Walls must be between 0 and 10");
