@@ -25,7 +25,9 @@ public class Position {
     assert invariant();
 
     // Pre-condition
-    if(y < 0 || y > 8) {throw new IllegalArgumentException("Position Y invailid");}
+    if(y < 0 || y > 8) {
+      throw new IllegalArgumentException("Position Y invalid");
+    }
 
     // Logic
     this.y = y;
@@ -37,7 +39,9 @@ public class Position {
     assert invariant();
 
     // Pre-condition
-    if(x < 0 || x > 8) {throw new IllegalArgumentException("Position X invailid");}
+    if(x < 0 || x > 8) {
+      throw new IllegalArgumentException("Position X invalid");
+    }
 
     // Logic
     this.x = x;
