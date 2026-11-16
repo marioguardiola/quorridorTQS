@@ -187,4 +187,94 @@ public class GameControllerTest {
     assertEquals(0, mockBoard.addWallCount);
     assertEquals(10, player1.getWalls());
   }
+
+  // Test de Caja Blanca
+  @Test
+  void testMovePawnOutOfBoardX() {
+    // Límites exteriores en X (9 y -1): la condición del || falla por la columna
+    assertFalse(controller.movePawn(4, 9));
+    assertFalse(controller.movePawn(4, -1));
+    assertEquals(2, mockView.messages.size());
+    assertEquals(0, mockValidation.callCount);
+  }
+
+  @Test
+  void testMovePawnSecondPlayerTurn() {
+    // Rama else del ternario del oponente: mueve el jugador 2
+    mockValidation.setValid(true);
+    controller.movePawn(7, 4); // jugador 1, pasa el turno
+
+    assertTrue(controller.movePawn(1, 4)); // jugador 2
+    assertEquals(1, player2.getPositionY());
+    assertEquals(player1, controller.getCurrentPlayer());
+  }
+
+  @Test
+  void testPlayer2Wins() {
+    player2.setPosition(7, 3); // a un paso de su meta (fila 8)
+    mockValidation.setValid(true);
+    controller.movePawn(7, 4); // jugador 1, pasa el turno
+
+    assertTrue(controller.movePawn(8, 3));
+    assertSame(player2, mockView.winner);
+    assertSame(player2, controller.getWinner());
+    assertTrue(controller.isGameOver());
+  }
+
+  @Test
+  void testPlaceWallSecondPlayerTurn() {
+    mockBoard.setAccept(true);
+    controller.placeWall(3, 3, Orientation.HORIZONTAL); // jugador 1
+
+    assertTrue(controller.placeWall(5, 5, Orientation.VERTICAL)); // jugador 2
+    assertEquals(9, player2.getWalls());
+    assertEquals(player1, controller.getCurrentPlayer());
+  }
+
+  // Test Null Orientation
+  @Test
+  void testPlaceWallNullOrientation() {
+    assertFalse(controller.placeWall(3, 3, null));
+
+    assertEquals(0, mockBoard.addWallCount);
+    assertEquals(1, mockView.messages.size());
+    assertEquals(10, player1.getWalls());
+    assertEquals(player1, controller.getCurrentPlayer());
+  }
+
+  // Test Winner
+  @Test
+  void testGetWinner() {
+    assertNull(controller.getWinner());
+
+    player1.setPosition(0, 3);
+    assertSame(player1, controller.getWinner());
+  }
+
+  // Test Start Game
+  @Test
+  void testStart() {
+    controller.start();
+
+    assertEquals(1, mockView.boardShownCount);
+    assertEquals(player1, mockView.lastTurn);
+  }
+
+  // Test Preconditions
+  @Test
+  void testConstructorInvalidArguments() {
+    assertThrows(IllegalArgumentException.class, () ->
+        new GameController(null, player1, player2, mockValidation, mockView));
+    assertThrows(IllegalArgumentException.class, () ->
+        new GameController(mockBoard, null, player2, mockValidation, mockView));
+    assertThrows(IllegalArgumentException.class, () ->
+        new GameController(mockBoard, player1, null, mockValidation, mockView));
+    assertThrows(IllegalArgumentException.class, () ->
+        new GameController(mockBoard, player1, player2, null, mockView));
+    assertThrows(IllegalArgumentException.class, () ->
+        new GameController(mockBoard, player1, player2, mockValidation, null));
+    // El mismo jugador dos veces
+    assertThrows(IllegalArgumentException.class, () ->
+        new GameController(mockBoard, player1, player1, mockValidation, mockView));
+  }
 }
