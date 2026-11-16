@@ -1,12 +1,15 @@
 package quorridor.controller;
 
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import quorridor.model.Orientation;
 import quorridor.model.Player;
 import quorridor.view.GameView;
+import quorridor.model.Board;
+
 
 /**
  * Tests de GameController con un mock de la Vista hecho con Mockito.
@@ -80,5 +83,20 @@ public class GameControllerMockitoTest {
     // Mockito (verify): la Vista muestra un mensaje que empieza por este texto
     verify(viewMock).showMessage(startsWith("No se puede colocar el muro"));
     verify(viewMock, never()).showTurn(any());
+  }
+
+  @Test
+  void testPlaceWallBoardFullShowsMessage() {
+    // El tablero lanza IllegalStateException (máximo de muros alcanzado)
+    Board boardMock = mock(Board.class);
+    doThrow(new IllegalStateException("max")).when(boardMock).addWall(any(), any());
+    GameController c =
+        new GameController(boardMock, player1, player2, mockValidation, viewMock);
+
+    assertFalse(c.placeWall(3, 3, Orientation.HORIZONTAL));
+
+    verify(viewMock).showMessage(startsWith("No se puede colocar el muro"));
+    verify(viewMock, never()).showTurn(any());
+    assertEquals(10, player1.getWalls());
   }
 }
