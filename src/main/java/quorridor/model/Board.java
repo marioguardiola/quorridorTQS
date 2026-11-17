@@ -131,26 +131,24 @@ public class Board {
   // Returns true if the given wall overlaps or crosses any wall already on the board
   public boolean isOverlapping(Wall wall) {
     for (Wall other : walls) {
+      // v2: compute the distance between both anchors only once
+      int distY = Math.abs(other.getPositionY() - wall.getPositionY());
+      int distX = Math.abs(other.getPositionX() - wall.getPositionX());
+
       // Same anchor: it is the same wall, or they cross each other in a "+"
-      if (other.getPositionY() == wall.getPositionY()
-          && other.getPositionX() == wall.getPositionX()) {
+      if (distY == 0 && distX == 0) {
         return true;
       }
 
-      // Two horizontal walls in the same row, shifted 1 column -> they share a cell
-      if (wall.getOrientation() == Orientation.HORIZONTAL
-          && other.getOrientation() == Orientation.HORIZONTAL
-          && other.getPositionY() == wall.getPositionY()
-          && Math.abs(other.getPositionX() - wall.getPositionX()) == 1) {
-        return true;
-      }
-
-      // Two vertical walls in the same column, shifted 1 row -> they share a cell
-      if (wall.getOrientation() == Orientation.VERTICAL
-          && other.getOrientation() == Orientation.VERTICAL
-          && other.getPositionX() == wall.getPositionX()
-          && Math.abs(other.getPositionY() - wall.getPositionY()) == 1) {
-        return true;
+      // Same orientation and same groove, shifted 1 cell along the wall -> they share a cell
+      if (other.getOrientation() == wall.getOrientation()) {
+        boolean horizontal = wall.getOrientation() == Orientation.HORIZONTAL;
+        if (horizontal && distY == 0 && distX == 1) {
+          return true;
+        }
+        if (!horizontal && distX == 0 && distY == 1) {
+          return true;
+        }
       }
     }
     return false;
