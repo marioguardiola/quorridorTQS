@@ -426,4 +426,47 @@ public class BoardTest {
     // Loop testing - salida en la última pasada (n = 20): coincide con el último muro (4,6)
     assertTrue(board.isOverlapping(new Wall(4, 6, Orientation.HORIZONTAL)));
   }
+
+  // ---------- hasPath v2: casilla encerrada, esquinas y precondiciones ----------
+
+  @Test
+  void testHasPathSingleCellEnclosed() {
+    // Caja negra - partición inválida (sin camino): la casilla (4,4) encerrada por 4 muros
+    // Caja blanca - loop testing del while de hasPath: 1 sola pasada
+    // (se saca (4,4) de la cola, sus 4 vecinos están bloqueados y la cola queda vacía)
+    Board board = new Board();
+    board.addWall(new Wall(3, 4, Orientation.HORIZONTAL)); // arriba
+    board.addWall(new Wall(4, 3, Orientation.HORIZONTAL)); // abajo
+    board.addWall(new Wall(3, 3, Orientation.VERTICAL));   // izquierda
+    board.addWall(new Wall(4, 4, Orientation.VERTICAL));   // derecha
+
+    assertFalse(board.hasPath(4, 4, 0));
+    assertFalse(board.hasPath(4, 4, 8));
+
+    // Caja negra - valor frontera: la casilla de encima (3,4) está fuera del encierro
+    assertTrue(board.hasPath(3, 4, 0));
+  }
+
+  @Test
+  void testHasPathFromCorners() {
+    // Caja negra - valores frontera: salir desde las 4 esquinas del tablero (0 y 8)
+    // Caja blanca: en las esquinas, 2 de los 4 vecinos del for quedan fuera del tablero
+    Board board = new Board();
+    assertTrue(board.hasPath(8, 0, 0));
+    assertTrue(board.hasPath(8, 8, 0));
+    assertTrue(board.hasPath(0, 0, 8));
+    assertTrue(board.hasPath(0, 8, 8));
+  }
+
+  @Test
+  void testHasPathInvalidBoundaries() {
+    Board board = new Board();
+    // Caja negra - valores límite exteriores de la posición inicial: 9 en Y, -1 y 9 en X
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(9, 4, 0));
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(4, -1, 0));
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(4, 9, 0));
+    // Caja negra - valores límite exteriores de la meta: -1 y 9 (solo se acepta 0 u 8)
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(4, 4, -1));
+    assertThrows(IllegalArgumentException.class, () -> board.hasPath(4, 4, 9));
+  }
 }
