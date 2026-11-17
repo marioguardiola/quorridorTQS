@@ -9,8 +9,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests de GameController (clase de alto nivel).
- * Mock objects hechos a mano: MockGameView (Vista) y MockMoveValidation
- * (reglas de movimiento), inyectados por el constructor (Inversion of Control).
+ * Mock objects hechos a mano: MockGameView (Vista), MockMoveValidation (reglas de
+ * movimiento) y MockBoard (tablero), inyectados por el constructor (Inversion of Control).
+ *
+ * Caja blanca - path coverage de placeWall (ver diagrama de actividad UML del informe):
+ * V(G) = E - N + 2 = 20 - 15 + 2 = 7 caminos independientes (P1..P7).
+ * Cada test de placeWall indica qué camino recorre.
  */
 public class GameControllerTest {
   private Player player1;
@@ -117,6 +121,8 @@ public class GameControllerTest {
 
   @Test
   void testPlaceWallValid() {
+    // Caja blanca - path coverage: camino P6 (1-3-5-7-9-11-12-14-15),
+    // muro colocado por el jugador 1 (rama true del ternario del turno)
     // Partición válida: el tablero (mock) acepta el muro
     mockBoard.setAccept(true);
 
@@ -133,6 +139,7 @@ public class GameControllerTest {
 
   @Test
   void testPlaceWallRejectedByBoard() {
+    // Caja blanca - path coverage: camino P5 (1-3-5-7-9-10-15), el tablero lanza excepción
     // Partición inválida: el tablero (mock) rechaza el muro
     // (se solapa con otro o encierra a un jugador)
     mockBoard.setAccept(false);
@@ -151,6 +158,7 @@ public class GameControllerTest {
 
   @Test
   void testPlaceWallNoWallsLeft() {
+    // Caja blanca - path coverage: camino P2 (1-3-4-15), al jugador no le quedan muros
     // Valor frontera inferior: el jugador tiene 0 muros -> no puede colocar ninguno
     Player noWalls = new Player("Player 1", 1, 0, 8, 4, 0);
     GameController c = new GameController(mockBoard, noWalls, player2, mockValidation, mockView);
@@ -167,6 +175,7 @@ public class GameControllerTest {
 
   @Test
   void testPlaceWallInvalidAnchor() {
+    // Caja blanca - path coverage: camino P3 (1-3-5-6-15), ancla fuera de rango
     // Valores límite exteriores del ancla del muro: 8 y -1 (rango válido [0, 7])
     assertFalse(controller.placeWall(8, 3, Orientation.HORIZONTAL));
     assertFalse(controller.placeWall(3, -1, Orientation.VERTICAL));
@@ -178,6 +187,7 @@ public class GameControllerTest {
 
   @Test
   void testPlaceWallAfterGameOver() {
+    // Caja blanca - path coverage: camino P1 (1-2-15), la partida ya ha terminado
     // Partición inválida: con la partida terminada no se pueden colocar muros
     player1.setPosition(0, 3); // el jugador 1 ya está en su fila meta
 
@@ -188,10 +198,12 @@ public class GameControllerTest {
     assertEquals(10, player1.getWalls());
   }
 
-  // Test de Caja Blanca
+  // ---------- Caja blanca: tests añadidos tras analizar la cobertura ----------
+
   @Test
   void testMovePawnOutOfBoardX() {
-    // Límites exteriores en X (9 y -1): la condición del || falla por la columna
+    // Caja blanca - condition coverage: X fuera del tablero (9 y -1), es decir,
+    // las condiciones del || que dependen de la columna toman el valor true
     assertFalse(controller.movePawn(4, 9));
     assertFalse(controller.movePawn(4, -1));
     assertEquals(2, mockView.messages.size());
@@ -200,22 +212,27 @@ public class GameControllerTest {
 
   @Test
   void testMovePawnSecondPlayerTurn() {
-    // Rama else del ternario del oponente: mueve el jugador 2
+    // Caja blanca - decision coverage: rama false del ternario del rival
+    // (currentPlayer == player1 es false porque mueve el jugador 2)
     mockValidation.setValid(true);
     controller.movePawn(7, 4); // jugador 1, pasa el turno
 
     assertTrue(controller.movePawn(1, 4)); // jugador 2
     assertEquals(1, player2.getPositionY());
+    // El turno vuelve al jugador 1
     assertEquals(player1, controller.getCurrentPlayer());
   }
 
   @Test
   void testPlayer2Wins() {
+    // Caja negra - valor frontera: el jugador 2 pasa de la fila 7 a su fila meta (8) -> gana
+    // Caja blanca: rama "ganador" de movePawn cuando el jugador actual es el 2
     player2.setPosition(7, 3); // a un paso de su meta (fila 8)
     mockValidation.setValid(true);
     controller.movePawn(7, 4); // jugador 1, pasa el turno
 
     assertTrue(controller.movePawn(8, 3));
+    // Interacción con la Vista: se anuncia al jugador 2 como ganador
     assertSame(player2, mockView.winner);
     assertSame(player2, controller.getWinner());
     assertTrue(controller.isGameOver());
@@ -223,46 +240,57 @@ public class GameControllerTest {
 
   @Test
   void testPlaceWallSecondPlayerTurn() {
+    // Caja blanca - path coverage: camino P7 (1-3-5-7-9-11-13-14-15),
+    // muro colocado por el jugador 2 (rama false del ternario del turno)
     mockBoard.setAccept(true);
     controller.placeWall(3, 3, Orientation.HORIZONTAL); // jugador 1
 
     assertTrue(controller.placeWall(5, 5, Orientation.VERTICAL)); // jugador 2
+    // El jugador 2 ha gastado un muro, y el turno vuelve al jugador 1
     assertEquals(9, player2.getWalls());
     assertEquals(player1, controller.getCurrentPlayer());
   }
 
-  // Test Null Orientation
   @Test
   void testPlaceWallNullOrientation() {
+    // Caja blanca - path coverage: camino P4 (1-3-5-7-8-15), orientación nula
+    // Partición inválida: muro sin orientación
     assertFalse(controller.placeWall(3, 3, null));
 
+    // No se toca el tablero, la Vista muestra un error y nada más cambia
     assertEquals(0, mockBoard.addWallCount);
     assertEquals(1, mockView.messages.size());
     assertEquals(10, player1.getWalls());
     assertEquals(player1, controller.getCurrentPlayer());
   }
 
-  // Test Winner
+  // ---------- getWinner y start ----------
+
   @Test
   void testGetWinner() {
+    // Partición: ningún jugador en su meta -> no hay ganador (null)
     assertNull(controller.getWinner());
 
+    // Partición: el jugador 1 en su fila meta (0) -> el ganador es el jugador 1
     player1.setPosition(0, 3);
     assertSame(player1, controller.getWinner());
   }
 
-  // Test Start Game
   @Test
   void testStart() {
+    // Interacción con la Vista: al empezar se muestra el tablero una vez
+    // y el turno del jugador 1
     controller.start();
 
     assertEquals(1, mockView.boardShownCount);
     assertEquals(player1, mockView.lastTurn);
   }
 
-  // Test Preconditions
+  // ---------- Precondiciones del constructor (Diseño por Contrato) ----------
+
   @Test
   void testConstructorInvalidArguments() {
+    // Partición inválida: cada una de las dependencias nula (precondición)
     assertThrows(IllegalArgumentException.class, () ->
         new GameController(null, player1, player2, mockValidation, mockView));
     assertThrows(IllegalArgumentException.class, () ->
@@ -273,7 +301,7 @@ public class GameControllerTest {
         new GameController(mockBoard, player1, player2, null, mockView));
     assertThrows(IllegalArgumentException.class, () ->
         new GameController(mockBoard, player1, player2, mockValidation, null));
-    // El mismo jugador dos veces
+    // Partición inválida: el mismo jugador dos veces (precondición)
     assertThrows(IllegalArgumentException.class, () ->
         new GameController(mockBoard, player1, player1, mockValidation, mockView));
   }
