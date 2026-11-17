@@ -1,7 +1,9 @@
 package quorridor.model;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * Board: 9x9 cells + list of placed walls.
@@ -12,6 +14,10 @@ public class Board {
 
   // Max walls on the board: 2 players x 10 walls each
   public static final int MAX_WALLS = 20;
+
+  // Orthogonal directions used by hasPath: up, down, left, right
+  private static final int[] DIR_Y = {-1, 1, 0, 0};
+  private static final int[] DIR_X = {0, 0, -1, 1};
 
   private List<Wall> walls;
 
@@ -81,7 +87,7 @@ public class Board {
     if (!isInside(startY, startX)) {
       throw new IllegalArgumentException("Start position is out of the board");
     }
-    if (targetGoalY != 0 && targetGoalY != 8) {
+    if (targetGoalY != 0 && targetGoalY != SIZE - 1) {
       throw new IllegalArgumentException("Target goal Y must be 0 or 8");
     }
 
@@ -90,15 +96,11 @@ public class Board {
       return true;
     }
 
-    java.util.Queue<int[]> queue = new java.util.LinkedList<>();
-    java.util.Set<String> visited = new java.util.HashSet<>();
-
+    // v2: visited cells in a boolean matrix (instead of "y,x" strings)
+    boolean[][] visited = new boolean[SIZE][SIZE];
+    Queue<int[]> queue = new LinkedList<>();
     queue.add(new int[]{startY, startX});
-    visited.add(startY + "," + startX);
-
-    // Orthogonal directions: up, down, left, right
-    int[] dY = {-1, 1, 0, 0};
-    int[] dX = {0, 0, -1, 1};
+    visited[startY][startX] = true;
 
     while (!queue.isEmpty()) {
       int[] current = queue.poll();
@@ -110,19 +112,15 @@ public class Board {
         return true;
       }
 
-      for (int i = 0; i < 4; i++) {
-        int nextY = currY + dY[i];
-        int nextX = currX + dX[i];
+      for (int i = 0; i < DIR_Y.length; i++) {
+        int nextY = currY + DIR_Y[i];
+        int nextX = currX + DIR_X[i];
 
-        // Check if next cell is within bounds and not blocked by a wall
-        if (isInside(nextY, nextX)) {
-          if (!isBlocked(currY, currX, nextY, nextX)) {
-            String key = nextY + "," + nextX;
-            if (!visited.contains(key)) {
-              visited.add(key);
-              queue.add(new int[]{nextY, nextX});
-            }
-          }
+        // Next cell: inside the board, not visited yet and not blocked by a wall
+        if (isInside(nextY, nextX) && !visited[nextY][nextX]
+            && !isBlocked(currY, currX, nextY, nextX)) {
+          visited[nextY][nextX] = true;
+          queue.add(new int[]{nextY, nextX});
         }
       }
     }
