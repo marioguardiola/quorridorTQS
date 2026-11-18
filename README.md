@@ -1,4 +1,4 @@
-# Quorridor - Testing&Quality (2026-2027)
+# Quorridor - Test i Qualitat de Software (2026-2027)
 
 ##  Authors
 Irene López - 1661436
