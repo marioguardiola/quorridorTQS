@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.CsvSource;
+import java.util.List;
 
 /**
  * Tests de Board (clase de bajo nivel).
@@ -496,5 +498,91 @@ public class BoardTest {
     // Caja negra - valores límite exteriores de la meta: -1 y 9 (solo se acepta 0 u 8)
     assertThrows(IllegalArgumentException.class, () -> board.hasPath(4, 4, -1));
     assertThrows(IllegalArgumentException.class, () -> board.hasPath(4, 4, 9));
+  }
+
+
+  // ---------- Caja blanca - loop testing de bucles anidados ----------
+  // Teoría: 1) probar el bucle más interior como bucle simple, con los exteriores al mínimo;
+  //         2) probar el exterior como bucle simple, con los interiores en valores habituales.
+
+  // Bucle anidado 1: hasPath -> while de la BFS (exterior) + for de las 4 direcciones (interior)
+
+  @Test
+  void testNestedHasPathInnerFor() {
+    // Paso 1: bucle interior (for de direcciones) con el exterior al mínimo (1 pasada del while).
+    // El for siempre da n = 4 pasadas (DIR_Y.length es constante): evitarlo, 1, 2, m y n-1
+    // pasadas son casos imposibles. Se prueba n = 4 con el while en 1 sola pasada:
+    // la casilla (4,4) está encerrada -> mira sus 4 vecinos, todos bloqueados, y la cola se vacía
+    Board board = new Board();
+    board.addWall(new Wall(3, 4, Orientation.HORIZONTAL)); // arriba
+    board.addWall(new Wall(4, 3, Orientation.HORIZONTAL)); // abajo
+    board.addWall(new Wall(3, 3, Orientation.VERTICAL));   // izquierda
+    board.addWall(new Wall(4, 4, Orientation.VERTICAL));   // derecha
+
+    assertFalse(board.hasPath(4, 4, 0));
+  }
+
+  // Paso 2: bucle exterior (while) como bucle simple, con el for interior en su valor (4).
+  // 1 pasada: testNestedHasPathInnerFor. n = 81 casillas, pero n-1 y n son imposibles:
+  // el while acaba al sacar la primera casilla de la fila meta, antes de recorrer todo el tablero
+  @ParameterizedTest(name = "{3}")
+  @CsvSource({
+      "0, 4, 0, evitar el while: 0 pasadas (ya está en la fila meta)",
+      "1, 4, 0, 2 pasadas: saca (1;4) y después (0;4) que ya es meta",
+      "4, 4, 0, m = 26 pasadas: desde el centro del tablero",
+      "8, 4, 0, m = 53 pasadas: desde la casilla de salida del jugador 1"
+  })
+  void testNestedHasPathOuterWhile(int startY, int startX, int goalY, String caso) {
+    Board board = new Board();
+    assertTrue(board.hasPath(startY, startX, goalY));
+  }
+
+  // Bucle anidado 2: addWall(wall, players) -> for de los jugadores (exterior)
+  //                  + while de hasPath (interior, se llama dentro del for)
+
+  @Test
+  void testNestedAddWallInnerWhile() {
+    // Paso 1: bucle interior (while de hasPath) como bucle simple,
+    // con el exterior al mínimo (1 jugador = 1 pasada del for)
+    Player player = new Player("Ana", 1, 10, 8, 4, 0);
+    Board board = new Board();
+
+    // Evitar el while (0 pasadas): el jugador ya está en su fila meta
+    player.setPosition(0, 4);
+    board.addWall(new Wall(6, 0, Orientation.HORIZONTAL), List.of(player));
+    // 2 pasadas: el jugador está en la fila 1
+    player.setPosition(1, 4);
+    board.addWall(new Wall(6, 2, Orientation.HORIZONTAL), List.of(player));
+    // m = 25 pasadas: el jugador está en el centro
+    player.setPosition(4, 4);
+    board.addWall(new Wall(6, 4, Orientation.HORIZONTAL), List.of(player));
+    assertEquals(3, board.getWallCount());
+
+    // 1 pasada: el 4º muro encerraría al jugador en (4,4) -> se rechaza y se deshace
+    Board enclosed = new Board();
+    enclosed.addWall(new Wall(3, 4, Orientation.HORIZONTAL));
+    enclosed.addWall(new Wall(4, 3, Orientation.HORIZONTAL));
+    enclosed.addWall(new Wall(3, 3, Orientation.VERTICAL));
+    assertThrows(IllegalArgumentException.class,
+        () -> enclosed.addWall(new Wall(4, 4, Orientation.VERTICAL), List.of(player)));
+    assertEquals(3, enclosed.getWallCount());
+  }
+
+  @Test
+  void testNestedAddWallOuterFor() {
+    // Paso 2: bucle exterior (for de jugadores) como bucle simple, n = 2 jugadores,
+    // con el while interior en valores habituales (jugadores en su casilla de salida)
+    Player player1 = new Player("Player 1", 1, 10, 8, 4, 0);
+    Player player2 = new Player("Player 2", 2, 10, 0, 4, 8);
+    Board board = new Board();
+
+    // Evitar el for (0 pasadas): lista de jugadores vacía
+    board.addWall(new Wall(3, 0, Orientation.HORIZONTAL), List.of());
+    // 1 pasada (= n-1)
+    board.addWall(new Wall(3, 2, Orientation.HORIZONTAL), List.of(player1));
+    // 2 pasadas (= n)
+    board.addWall(new Wall(3, 4, Orientation.HORIZONTAL), List.of(player1, player2));
+
+    assertEquals(3, board.getWallCount());
   }
 }
