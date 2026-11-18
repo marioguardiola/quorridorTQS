@@ -70,10 +70,15 @@ public class GameController {
     return getWinner() != null;
   }
 
-  // Shows the initial state of the game: the board and whose turn it is
+  // Shows the initial state of the game: the board and whose turn it is.
+  // v2: if the game is already over, it announces the winner instead of the turn
   public void start() {
     view.showBoard(board, player1, player2);
-    view.showTurn(currentPlayer);
+    if (isGameOver()) {
+      view.showWinner(getWinner());
+    } else {
+      view.showTurn(currentPlayer);
+    }
   }
 
   // Moves the current player's pawn to (toY, toX). Returns true if the move was done
