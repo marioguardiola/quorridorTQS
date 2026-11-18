@@ -9,7 +9,7 @@ import quorridor.model.Player;
 /**
  * Vista real del juego (MVC): dibuja el tablero en la consola y lee las órdenes del usuario.
  * No tiene lógica del juego: solo muestra lo que le pide el controlador.
- * Al ser la Vista, no se prueba con tests unitarios (en los tests se sustituye por mocks).
+ * Se prueba en ConsoleViewTest pasándole streams en memoria en lugar de la consola.
  */
 public class ConsoleView implements GameView {
 
