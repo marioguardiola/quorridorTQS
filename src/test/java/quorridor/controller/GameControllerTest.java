@@ -305,4 +305,43 @@ public class GameControllerTest {
     assertThrows(IllegalArgumentException.class, () ->
         new GameController(mockBoard, player1, player1, mockValidation, mockView));
   }
+
+  // ---------- La Vista redibuja el tablero tras cada jugada válida ----------
+
+  @Test
+  void testMovePawnRedrawsBoard() {
+    // Interacción con la Vista: tras un movimiento válido se redibuja el tablero
+    mockValidation.setValid(true);
+    controller.movePawn(7, 4);
+    assertEquals(1, mockView.boardShownCount);
+
+    // Partición inválida: tras un movimiento rechazado el tablero no se redibuja
+    mockValidation.setValid(false);
+    controller.movePawn(1, 4); // turno del jugador 2
+    assertEquals(1, mockView.boardShownCount);
+  }
+
+  @Test
+  void testPlaceWallRedrawsBoard() {
+    // Interacción con la Vista: tras colocar un muro se redibuja el tablero
+    mockBoard.setAccept(true);
+    controller.placeWall(3, 3, Orientation.HORIZONTAL);
+    assertEquals(1, mockView.boardShownCount);
+
+    // Partición inválida: si el tablero rechaza el muro, no se redibuja
+    mockBoard.setAccept(false);
+    controller.placeWall(5, 5, Orientation.VERTICAL);
+    assertEquals(1, mockView.boardShownCount);
+  }
+
+  @Test
+  void testWinningMoveRedrawsBoard() {
+    // Valor frontera: el movimiento ganador también redibuja el tablero
+    // (para que se vea al ganador en su fila meta)
+    player1.setPosition(1, 3);
+    mockValidation.setValid(true);
+    controller.movePawn(0, 3);
+    assertEquals(1, mockView.boardShownCount);
+    assertEquals(player1, mockView.winner);
+  }
 }
