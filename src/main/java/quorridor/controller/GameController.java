@@ -108,6 +108,9 @@ public class GameController {
 
     currentPlayer.setPosition(toY, toX);
 
+    // The board has changed: tell the View to redraw it
+    view.showBoard(board, player1, player2);
+
     // The player has reached their goal row: announce the winner
     if (currentPlayer.hasReachedGoal()) {
       view.showWinner(currentPlayer);
@@ -168,6 +171,7 @@ public class GameController {
     // Wall placed: the player uses one wall, the turn changes and the View is told
     currentPlayer.useWall();
     currentPlayer = (currentPlayer == player1) ? player2 : player1;
+    view.showBoard(board, player1, player2);
     view.showTurn(currentPlayer);
 
     assert invariant();
