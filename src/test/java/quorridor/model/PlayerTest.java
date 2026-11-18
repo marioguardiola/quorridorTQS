@@ -1,6 +1,8 @@
 package quorridor.model;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -92,6 +94,27 @@ public class PlayerTest {
     assertThrows(IllegalArgumentException.class, () -> new Player("A", 1, 10, 0, 4, 0));
     // Caja negra - partición inválida: empezar en la fila 8 con meta en la fila 8
     assertThrows(IllegalArgumentException.class, () -> new Player("A", 2, 10, 8, 4, 8));
+  }
+
+
+  // Caja negra - pairwise testing del constructor (data-driven con CSV).
+  // Parámetros: walls {0,5,10}, positionY {0,4,8}, positionX {0,4,8}, goalY {0,8}.
+  // Todas las combinaciones = 3*3*3*2 = 54 casos; pairwise (array ortogonal L9) = 9 casos,
+  // que cubren todas las parejas de valores. Detecta la interacción positionY-goalY.
+  @ParameterizedTest(name = "{5}")
+  @CsvFileSource(resources = "/player_pairwise.csv", numLinesToSkip = 1)
+  void testConstructorPairwise(int walls, int positionY, int positionX, int goalY,
+                               boolean valid, String caso) {
+    if (valid) {
+      Player p = new Player("Ana", 1, walls, positionY, positionX, goalY);
+      assertEquals(walls, p.getWalls());
+      assertEquals(positionY, p.getPositionY());
+      assertEquals(positionX, p.getPositionX());
+      assertEquals(goalY, p.getGoalY());
+    } else {
+      assertThrows(IllegalArgumentException.class,
+          () -> new Player("Ana", 1, walls, positionY, positionX, goalY));
+    }
   }
 
   // ---------- setPosition / getPosition ----------

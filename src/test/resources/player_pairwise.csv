@@ -1,0 +1,10 @@
+walls,positionY,positionX,goalY,valid,caso
+0,0,0,0,false,pairwise 1: Y=0 con meta 0 -> incoherente
+0,4,4,8,true,pairwise 2: walls 0 - centro - meta 8
+0,8,8,0,true,pairwise 3: walls 0 - esquina (8;8) - meta 0
+5,0,4,0,false,pairwise 4: Y=0 con meta 0 -> incoherente
+5,4,8,0,true,pairwise 5: walls 5 - borde derecho - meta 0
+5,8,0,8,false,pairwise 6: Y=8 con meta 8 -> incoherente
+10,0,8,8,true,pairwise 7: walls 10 - esquina (0;8) - meta 8
+10,4,0,0,true,pairwise 8: walls 10 - borde izquierdo - meta 0
+10,8,4,0,true,pairwise 9: walls 10 - salida abajo - meta 0
