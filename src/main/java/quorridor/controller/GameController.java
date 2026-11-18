@@ -54,15 +54,24 @@ public class GameController {
     return currentPlayer;
   }
 
-  // Returns the player who reached the goal row, or null if the game is not over
+  // Returns the player who reached the goal row, or null if the game is not over.
+  // v2 (DbC): two winners at the same time is an invalid state
   public Player getWinner() {
+    // Pre-condition (state): both players cannot be at their goal
+    if (player1.hasReachedGoal() && player2.hasReachedGoal()) {
+      throw new IllegalStateException("Both players cannot be winners");
+    }
+
+    Player winner = null;
     if (player1.hasReachedGoal()) {
-      return player1;
+      winner = player1;
+    } else if (player2.hasReachedGoal()) {
+      winner = player2;
     }
-    if (player2.hasReachedGoal()) {
-      return player2;
-    }
-    return null;
+
+    // Post-condition: if there is a winner, it has reached its goal
+    assert winner == null || winner.hasReachedGoal();
+    return winner;
   }
 
   // Returns true if one of the players has reached their goal row
