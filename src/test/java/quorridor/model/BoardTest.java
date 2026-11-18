@@ -427,6 +427,34 @@ public class BoardTest {
     assertTrue(board.isOverlapping(new Wall(4, 6, Orientation.HORIZONTAL)));
   }
 
+
+  // ---------- Caja blanca - loop testing del bucle de isBlocked ----------
+  // Bucle simple "for (Wall wall : walls)": una pasada por cada muro del tablero.
+  // n = MAX_WALLS = 20 pasadas como máximo.
+
+  // Loop testing: evitar el loop (0), 1, 2, m = 10, n-1 = 19 y n = 20 pasadas
+  @ParameterizedTest(name = "isBlocked con {0} muros -> {0} pasadas por el bucle")
+  @ValueSource(ints = {0, 1, 2, 10, 19, 20})
+  void testIsBlockedLoopPasses(int passes) {
+    Board board = boardWithWalls(passes);
+    assertEquals(passes, board.getWallCount());
+
+    // Movimiento lateral en la fila 8: solo le afectan muros verticales y no hay
+    // ninguno -> el bucle recorre TODOS los muros y devuelve false
+    assertFalse(board.isBlocked(8, 0, 8, 1));
+  }
+
+  @Test
+  void testIsBlockedLoopEarlyExit() {
+    Board board = boardWithWalls(Board.MAX_WALLS);
+
+    // Loop testing - salida anticipada en la 1a pasada: lo bloquea el 1r muro (0,0)
+    assertTrue(board.isBlocked(0, 0, 1, 0));
+
+    // Loop testing - salida en la última pasada (n = 20): lo bloquea el último muro (4,6)
+    assertTrue(board.isBlocked(4, 6, 5, 6));
+  }
+
   // ---------- hasPath v2: casilla encerrada, esquinas y precondiciones ----------
 
   @Test
