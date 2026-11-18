@@ -286,6 +286,19 @@ public class GameControllerTest {
     assertEquals(player1, mockView.lastTurn);
   }
 
+  @Test
+  void testStartWhenGameAlreadyOver() {
+    // TDD v2 de start. Partición: la partida YA ha terminado al llamar a start
+    // (jugador 1 en su meta) -> se anuncia el ganador, NO el turno
+    player1.setPosition(0, 3);
+
+    controller.start();
+
+    assertEquals(1, mockView.boardShownCount);
+    assertEquals(player1, mockView.winner);
+    assertNull(mockView.lastTurn);
+  }
+
   // ---------- Precondiciones del constructor (Diseño por Contrato) ----------
 
   @Test
