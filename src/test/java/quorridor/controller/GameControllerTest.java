@@ -277,6 +277,16 @@ public class GameControllerTest {
   }
 
   @Test
+  void testGetWinnerBothPlayersAtGoal() {
+    // TDD v2 de getWinner. Partición inválida (DbyC): los dos jugadores en su meta
+    // a la vez es un estado imposible -> IllegalStateException
+    player1.setPosition(0, 3);
+    player2.setPosition(8, 3);
+
+    assertThrows(IllegalStateException.class, () -> controller.getWinner());
+  }
+
+  @Test
   void testStart() {
     // Interacción con la Vista: al empezar se muestra el tablero una vez
     // y el turno del jugador 1
