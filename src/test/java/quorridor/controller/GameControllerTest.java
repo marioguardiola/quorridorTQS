@@ -277,6 +277,16 @@ public class GameControllerTest {
   }
 
   @Test
+  void testGetWinnerBothPlayersAtGoal() {
+    // TDD v2 de getWinner. Partición inválida (DbyC): los dos jugadores en su meta
+    // a la vez es un estado imposible -> IllegalStateException
+    player1.setPosition(0, 3);
+    player2.setPosition(8, 3);
+
+    assertThrows(IllegalStateException.class, () -> controller.getWinner());
+  }
+
+  @Test
   void testStart() {
     // Interacción con la Vista: al empezar se muestra el tablero una vez
     // y el turno del jugador 1
@@ -284,6 +294,19 @@ public class GameControllerTest {
 
     assertEquals(1, mockView.boardShownCount);
     assertEquals(player1, mockView.lastTurn);
+  }
+
+  @Test
+  void testStartWhenGameAlreadyOver() {
+    // TDD v2 de start. Partición: la partida YA ha terminado al llamar a start
+    // (jugador 1 en su meta) -> se anuncia el ganador, NO el turno
+    player1.setPosition(0, 3);
+
+    controller.start();
+
+    assertEquals(1, mockView.boardShownCount);
+    assertEquals(player1, mockView.winner);
+    assertNull(mockView.lastTurn);
   }
 
   // ---------- Precondiciones del constructor (Diseño por Contrato) ----------
